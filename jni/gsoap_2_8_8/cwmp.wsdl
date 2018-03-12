@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="cwmp"
+ targetNamespace="urn:dslforum-org:cwmp-1-0/cwmp.wsdl"
+ xmlns:tns="urn:dslforum-org:cwmp-1-0/cwmp.wsdl"
+ xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:cwmp="urn:dslforum-org:cwmp-1-0"
+ xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/"
+ xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/"
+ xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/"
+ xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/"
+ xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+<types>
+
+ <schema targetNamespace="urn:dslforum-org:cwmp-1-0"
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:cwmp="urn:dslforum-org:cwmp-1-0"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="unqualified"
+  attributeFormDefault="unqualified">
+  <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+  <simpleType name="ParameterKeyType"><!-- cwmp__ParameterKeyType -->
+
+   <restriction base="xsd:string">
+    <maxLength value="32"/>
+   </restriction>
+  </simpleType>
+  <simpleType name="ObjectNameType"><!-- cwmp__ObjectNameType -->
+
+   <restriction base="xsd:string">
+    <pattern value=".*\."/>
+    <maxLength value="256"/>
+   </restriction>
+  </simpleType>
+  <simpleType name="CommandKeyType"><!-- cwmp__CommandKeyType -->
+
+   <restriction base="xsd:string">
+    <maxLength value="32"/>
+   </restriction>
+  </simpleType>
+  <simpleType name="FaultCodeType"><!-- cwmp__FaultCodeType -->
+
+   <restriction base="xsd:string">
+    <maxLength value="9223372036854775807"/>
+   </restriction>
+  </simpleType>
+  <simpleType name="SetParaAttrStruct-Notification"><!-- _cwmp__SetParaAttrStruct_Notification -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__SetParaAttrStruct_Notification::_cwmp__SetParaAttrStruct_Notification__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__SetParaAttrStruct_Notification::_cwmp__SetParaAttrStruct_Notification__1 -->
+    <!-- = 1 -->
+    <enumeration value="2"/><!-- _cwmp__SetParaAttrStruct_Notification::_cwmp__SetParaAttrStruct_Notification__2 -->
+    <!-- = 2 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="SetParaValRes-Status"><!-- _cwmp__SetParaValRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__SetParaValRes_Status::_cwmp__SetParaValRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__SetParaValRes_Status::_cwmp__SetParaValRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="SetParaAttrStructRes-Notification"><!-- _cwmp__SetParaAttrStructRes_Notification -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__SetParaAttrStructRes_Notification::_cwmp__SetParaAttrStructRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__SetParaAttrStructRes_Notification::_cwmp__SetParaAttrStructRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="AddObjRes-Status"><!-- _cwmp__AddObjRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__AddObjRes_Status::_cwmp__AddObjRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__AddObjRes_Status::_cwmp__AddObjRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="DelObjRes-Status"><!-- _cwmp__DelObjRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__DelObjRes_Status::_cwmp__DelObjRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__DelObjRes_Status::_cwmp__DelObjRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="DownloadRes-Status"><!-- _cwmp__DownloadRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__DownloadRes_Status::_cwmp__DownloadRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__DownloadRes_Status::_cwmp__DownloadRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="UploadRes-Status"><!-- _cwmp__UploadRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__UploadRes_Status::_cwmp__UploadRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__UploadRes_Status::_cwmp__UploadRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <complexType name="FaultStruct"><!-- cwmp__FaultStruct -->
+
+   <sequence>
+     <element name="FaultCode" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__FaultStruct::FaultCode -->
+     <element name="FaultString" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__FaultStruct::FaultString -->
+   </sequence>
+  </complexType>
+  <complexType name="MethodList"><!-- cwmp__MethodList -->
+
+   <sequence>
+     <element name="string" type="xsd:string" minOccurs="0" maxOccurs="unbounded" nillable="true"/><!-- cwmp__MethodList::__size -->
+   </sequence>
+  </complexType>
+  <complexType name="ParameterValueStruct"><!-- cwmp__ParameterValueStruct -->
+
+   <sequence>
+     <element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterValueStruct::Name -->
+     <element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterValueStruct::Value -->
+     <element name="Type" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterValueStruct::Type -->
+   </sequence>
+  </complexType>
+  <complexType name="ArrayOfParameterValueStruct">
+   <complexContent>
+    <restriction base="SOAP-ENC:Array">
+     <sequence>
+      <element name="ParameterValueStruct" type="cwmp:ParameterValueStruct" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+     </sequence>
+     <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="cwmp:ParameterValueStruct[]"/>
+    </restriction>
+   </complexContent>
+  </complexType>
+  <complexType name="ArrayOfstring">
+   <complexContent>
+    <restriction base="SOAP-ENC:Array">
+     <sequence>
+      <element name="string" type="xsd:string" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+     </sequence>
+     <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="xsd:string[]"/>
+    </restriction>
+   </complexContent>
+  </complexType>
+  <complexType name="ArrayOfstring">
+   <complexContent>
+    <restriction base="SOAP-ENC:Array">
+     <sequence>
+      <element name="string" type="xsd:string" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+     </sequence>
+     <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="xsd:string[]"/>
+    </restriction>
+   </complexContent>
+  </complexType>
+  <complexType name="SetParameterAttributesStruct"><!-- cwmp__SetParameterAttributesStruct -->
+
+   <sequence>
+     <element name="Name" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- cwmp__SetParameterAttributesStruct::Name -->
+     <element name="NotificationChange" type="xsd:boolean" minOccurs="1" maxOccurs="1"/><!-- cwmp__SetParameterAttributesStruct::NotificationChange -->
+     <element name="Notification" type="cwmp:SetParaAttrStruct-Notification" minOccurs="1" maxOccurs="1"/><!-- cwmp__SetParameterAttributesStruct::Notification -->
+     <element name="AccessListChange" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__SetParameterAttributesStruct::AccessListChange -->
+     <element name="AccessList" type="cwmp:ArrayOfstring" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__SetParameterAttributesStruct::AccessList -->
+   </sequence>
+  </complexType>
+  <complexType name="ArrayOfSetParameterAttributesStruct">
+   <complexContent>
+    <restriction base="SOAP-ENC:Array">
+     <sequence>
+      <element name="SetParameterAttributesStruct" type="cwmp:SetParameterAttributesStruct" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+     </sequence>
+     <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="cwmp:SetParameterAttributesStruct[]"/>
+    </restriction>
+   </complexContent>
+  </complexType>
+  <complexType name="EventStruct"><!-- cwmp__EventStruct -->
+
+   <sequence>
+     <element name="EventCode" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__EventStruct::EventCode -->
+     <element name="CommandKey" type="cwmp:CommandKeyType" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__EventStruct::CommandKey -->
+   </sequence>
+  </complexType>
+  <complexType name="ArrayOfParameterInfoStruct">
+   <complexContent>
+    <restriction base="SOAP-ENC:Array">
+     <sequence>
+      <element name="ParameterInfoStruct" type="cwmp:ParameterInfoStruct" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+     </sequence>
+     <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="cwmp:ParameterInfoStruct[]"/>
+    </restriction>
+   </complexContent>
+  </complexType>
+  <complexType name="ParameterInfoStruct"><!-- cwmp__ParameterInfoStruct -->
+
+   <sequence>
+     <element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterInfoStruct::Name -->
+     <element name="Writable" type="xsd:int" minOccurs="1" maxOccurs="1"/><!-- cwmp__ParameterInfoStruct::Writable -->
+   </sequence>
+  </complexType>
+  <complexType name="ArrayOfParameterAttributeStruct">
+   <complexContent>
+    <restriction base="SOAP-ENC:Array">
+     <sequence>
+      <element name="ParameterAttributeStruct" type="cwmp:ParameterAttributeStruct" minOccurs="0" maxOccurs="unbounded" nillable="true"/>
+     </sequence>
+     <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="cwmp:ParameterAttributeStruct[]"/>
+    </restriction>
+   </complexContent>
+  </complexType>
+  <complexType name="ParameterAttributeStruct"><!-- cwmp__ParameterAttributeStruct -->
+
+   <sequence>
+     <element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterAttributeStruct::Name -->
+     <element name="Notification" type="cwmp:SetParaAttrStructRes-Notification" minOccurs="1" maxOccurs="1"/><!-- cwmp__ParameterAttributeStruct::Notification -->
+     <element name="AccessList" type="cwmp:ArrayOfstring" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterAttributeStruct::AccessList -->
+   </sequence>
+  </complexType>
+  <complexType name="TransferComplete"><!-- _cwmp__TransferComplete -->
+
+   <sequence>
+     <element name="CommandKey" type="cwmp:CommandKeyType" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__TransferComplete::CommandKey -->
+     <element name="FaultStruct" type="cwmp:FaultStruct" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__TransferComplete::FaultStruct -->
+     <element name="StartTime" type="xsd:dateTime" minOccurs="1" maxOccurs="1"/><!-- _cwmp__TransferComplete::StartTime -->
+     <element name="CompleteTime" type="xsd:dateTime" minOccurs="1" maxOccurs="1"/><!-- _cwmp__TransferComplete::CompleteTime -->
+   </sequence>
+  </complexType>
+  <complexType name="TransferCompleteResponse"><!-- _cwmp__TransferCompleteResponse -->
+
+   <sequence>
+   </sequence>
+  </complexType>
+  <complexType name="Fault-SetParameterValuesFault"><!-- _cwmp__Fault_SetParameterValuesFault -->
+
+   <sequence>
+     <element name="ParameterName" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault_SetParameterValuesFault::ParameterName -->
+     <element name="FaultCode" type="cwmp:FaultCodeType" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault_SetParameterValuesFault::FaultCode -->
+     <element name="FaultString" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault_SetParameterValuesFault::FaultString -->
+   </sequence>
+  </complexType>
+  <complexType name="Fault"><!-- _cwmp__Fault -->
+
+   <sequence>
+     <element name="FaultCode" type="cwmp:FaultCodeType" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault::FaultCode -->
+     <element name="FaultString" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault::FaultString -->
+     <element name="SetParameterValuesFault" type="cwmp:Fault-SetParameterValuesFault" minOccurs="0" maxOccurs="unbounded"/><!-- _cwmp__Fault::__sizeSetParameterValuesFault -->
+   </sequence>
+  </complexType>
+  <complexType name="DeviceIdStruct"><!-- _DeviceIdStruct -->
+
+   <sequence>
+     <element name="Manufacturer" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- _DeviceIdStruct::Manufacturer -->
+     <element name="OUI" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- _DeviceIdStruct::OUI -->
+     <element name="ProductClass" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- _DeviceIdStruct::ProductClass -->
+     <element name="SerialNumber" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- _DeviceIdStruct::SerialNumber -->
+   </sequence>
+  </complexType>
+  <complexType name="ArrayOfEventStruct">
+   <complexContent>
+    <restriction base="SOAP-ENC:Array">
+     <sequence>
+      <element name="EventStruct" type="cwmp:EventStruct" minOccurs="0" maxOccurs="unbounded" nillable="false"/>
+     </sequence>
+     <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="cwmp:EventStruct[]"/>
+    </restriction>
+   </complexContent>
+  </complexType>
+  <complexType name="ArrayOfParameterValueStruct">
+   <complexContent>
+    <restriction base="SOAP-ENC:Array">
+     <sequence>
+      <element name="ParameterValueStruct" type="cwmp:ParameterValueStruct" minOccurs="0" maxOccurs="unbounded" nillable="false"/>
+     </sequence>
+     <attribute ref="SOAP-ENC:arrayType" WSDL:arrayType="cwmp:ParameterValueStruct[]"/>
+    </restriction>
+   </complexContent>
+  </complexType>
+  <element name="ID" type="xsd:string"/>
+ </schema>
+
+</types>
+
+<message name="Inform">
+ <part name="DeviceId" type="cwmp:DeviceIdStruct"/><!-- cwmp__Inform::DeviceId -->
+ <part name="Event" type="cwmp:ArrayOfEventStruct"/><!-- cwmp__Inform::Event -->
+ <part name="MaxEnvelopes" type="xsd:unsignedInt"/><!-- cwmp__Inform::MaxEnvelopes -->
+ <part name="CurrentTime" type="xsd:string"/><!-- cwmp__Inform::CurrentTime -->
+ <part name="RetryCount" type="xsd:unsignedInt"/><!-- cwmp__Inform::RetryCount -->
+ <part name="ParameterList" type="cwmp:ArrayOfParameterValueStruct"/><!-- cwmp__Inform::ParameterList -->
+</message>
+
+<message name="InformResponse">
+ <part name="MaxEnvelopes" type="xsd:unsignedInt"/><!-- cwmp__Inform::MaxEnvelopes -->
+</message>
+
+<message name="GetRPCMethods">
+</message>
+
+<message name="GetRPCMethodsResponse">
+ <part name="MethodList" type="cwmp:MethodList"/><!-- cwmp__GetRPCMethods::__ptrMethodList -->
+</message>
+
+<message name="GetParameterValues">
+ <part name="ParameterNames" type="cwmp:ArrayOfstring"/><!-- cwmp__GetParameterValues::ParameterNames -->
+</message>
+
+<message name="GetParameterValuesResponse">
+ <part name="ParameterList" type="cwmp:ArrayOfParameterValueStruct"/><!-- cwmp__GetParameterValues::ParameterList -->
+</message>
+
+<message name="SetParameterValues">
+ <part name="ParameterList" type="cwmp:ArrayOfParameterValueStruct"/><!-- cwmp__SetParameterValues::ParameterList -->
+ <part name="ParameterKey" type="cwmp:ParameterKeyType"/><!-- cwmp__SetParameterValues::ParameterKey -->
+</message>
+
+<message name="SetParameterValuesResponse">
+ <part name="Status" type="cwmp:SetParaValRes-Status"/><!-- cwmp__SetParameterValues::Status -->
+</message>
+
+<message name="GetParameterNames">
+ <part name="ParameterPath" type="xsd:string"/><!-- cwmp__GetParameterNames::ParameterPath -->
+ <part name="NextLevel" type="xsd:string"/><!-- cwmp__GetParameterNames::NextLevel -->
+</message>
+
+<message name="GetParameterNamesResponse">
+ <part name="ParameterList" type="cwmp:ArrayOfParameterInfoStruct"/><!-- cwmp__GetParameterNames::ParameterList -->
+</message>
+
+<message name="SetParameterAttributes">
+ <part name="ParameterList" type="cwmp:ArrayOfSetParameterAttributesStruct"/><!-- cwmp__SetParameterAttributes::ParameterList -->
+</message>
+
+<message name="SetParameterAttributesResponse">
+ <part name="Status" type="cwmp:SetParaAttrStructRes-Notification"/><!-- cwmp__SetParameterAttributes::Status -->
+</message>
+
+<message name="GetParameterAttributes">
+ <part name="ParameterNames" type="cwmp:ArrayOfstring"/><!-- cwmp__GetParameterAttributes::ParameterNames -->
+</message>
+
+<message name="GetParameterAttributesResponse">
+ <part name="ParameterList" type="cwmp:ArrayOfParameterAttributeStruct"/><!-- cwmp__GetParameterAttributes::ParameterList -->
+</message>
+
+<message name="AddObject">
+ <part name="ObjectName" type="cwmp:ObjectNameType"/><!-- cwmp__AddObject::ObjectName -->
+ <part name="ParameterKey" type="cwmp:ParameterKeyType"/><!-- cwmp__AddObject::ParameterKey -->
+</message>
+
+<message name="AddObjectResponse">
+ <part name="InstanceNumber" type="xsd:unsignedInt"/><!-- cwmp__AddObject::InstanceNumber -->
+ <part name="Status" type="cwmp:AddObjRes-Status"/><!-- cwmp__AddObject::Status -->
+</message>
+
+<message name="AddObjectIPTV">
+ <part name="ObjectName" type="cwmp:ObjectNameType"/><!-- cwmp__AddObjectIPTV::ObjectName -->
+ <part name="ParameterKey" type="cwmp:ParameterKeyType"/><!-- cwmp__AddObjectIPTV::ParameterKey -->
+</message>
+
+<message name="DeleteObject">
+ <part name="ObjectName" type="cwmp:ObjectNameType"/><!-- cwmp__DeleteObject::ObjectName -->
+ <part name="ParameterKey" type="cwmp:ParameterKeyType"/><!-- cwmp__DeleteObject::ParameterKey -->
+</message>
+
+<message name="DeleteObjectResponse">
+ <part name="Status" type="cwmp:DelObjRes-Status"/><!-- cwmp__DeleteObject::Status -->
+</message>
+
+<message name="Reboot">
+ <part name="CommandKey" type="cwmp:CommandKeyType"/><!-- cwmp__Reboot::CommandKey -->
+</message>
+
+<message name="RebootResponse">
+</message>
+
+<message name="Download">
+ <part name="CommandKey" type="cwmp:CommandKeyType"/><!-- cwmp__Download::CommandKey -->
+ <part name="FileType" type="xsd:string"/><!-- cwmp__Download::FileType -->
+ <part name="URL" type="xsd:string"/><!-- cwmp__Download::URL -->
+ <part name="Username" type="xsd:string"/><!-- cwmp__Download::Username -->
+ <part name="Password" type="xsd:string"/><!-- cwmp__Download::Password -->
+ <part name="FileSize" type="xsd:int"/><!-- cwmp__Download::FileSize -->
+ <part name="TargetFileName" type="xsd:string"/><!-- cwmp__Download::TargetFileName -->
+ <part name="DelaySeconds" type="xsd:int"/><!-- cwmp__Download::DelaySeconds -->
+ <part name="SuccessURL" type="xsd:string"/><!-- cwmp__Download::SuccessURL -->
+ <part name="FailureURL" type="xsd:string"/><!-- cwmp__Download::FailureURL -->
+</message>
+
+<message name="DownloadResponse">
+ <part name="Status" type="cwmp:DownloadRes-Status"/><!-- cwmp__Download::Status -->
+ <part name="StartTime" type="xsd:dateTime"/><!-- cwmp__Download::StartTime -->
+ <part name="CompleteTime" type="xsd:dateTime"/><!-- cwmp__Download::CompleteTime -->
+</message>
+
+<message name="Upload">
+ <part name="CommandKey" type="cwmp:CommandKeyType"/><!-- cwmp__Upload::CommandKey -->
+ <part name="FileType" type="xsd:string"/><!-- cwmp__Upload::FileType -->
+ <part name="URL" type="xsd:string"/><!-- cwmp__Upload::URL -->
+ <part name="Username" type="xsd:string"/><!-- cwmp__Upload::Username -->
+ <part name="Password" type="xsd:string"/><!-- cwmp__Upload::Password -->
+ <part name="DelaySeconds" type="xsd:int"/><!-- cwmp__Upload::DelaySeconds -->
+</message>
+
+<message name="UploadResponse">
+ <part name="Status" type="cwmp:UploadRes-Status"/><!-- cwmp__Upload::Status -->
+ <part name="StartTime" type="xsd:dateTime"/><!-- cwmp__Upload::StartTime -->
+ <part name="CompleteTime" type="xsd:dateTime"/><!-- cwmp__Upload::CompleteTime -->
+</message>
+
+<message name="FactoryReset">
+</message>
+
+<message name="FactoryResetResponse">
+</message>
+
+<message name="ScheduleInform">
+ <part name="DelaySeconds" type="xsd:int"/><!-- cwmp__ScheduleInform::DelaySeconds -->
+ <part name="CommandKey" type="cwmp:CommandKeyType"/><!-- cwmp__ScheduleInform::CommandKey -->
+</message>
+
+<message name="ScheduleInformResponse">
+</message>
+
+<message name="TransferComplete">
+ <part name="CommandKey" type="cwmp:CommandKeyType"/><!-- cwmp__TransferComplete::CommandKey -->
+ <part name="FaultStruct" type="cwmp:FaultStruct"/><!-- cwmp__TransferComplete::FaultStruct -->
+ <part name="StartTime" type="xsd:dateTime"/><!-- cwmp__TransferComplete::StartTime -->
+ <part name="CompleteTime" type="xsd:dateTime"/><!-- cwmp__TransferComplete::CompleteTime -->
+</message>
+
+<message name="TransferCompleteResponse">
+</message>
+
+<message name="cwmpHeader">
+ <part name="ID" element="cwmp:ID"/>
+</message>
+
+<portType name="cwmpPortType">
+ <operation name="Inform">
+  <documentation>Service definition of function cwmp__Inform</documentation>
+  <input message="tns:Inform"/>
+  <output message="tns:InformResponse"/>
+ </operation>
+ <operation name="GetRPCMethods">
+  <documentation>Service definition of function cwmp__GetRPCMethods</documentation>
+  <input message="tns:GetRPCMethods"/>
+  <output message="tns:GetRPCMethodsResponse"/>
+ </operation>
+ <operation name="GetParameterValues">
+  <documentation>Service definition of function cwmp__GetParameterValues</documentation>
+  <input message="tns:GetParameterValues"/>
+  <output message="tns:GetParameterValuesResponse"/>
+ </operation>
+ <operation name="SetParameterValues">
+  <documentation>Service definition of function cwmp__SetParameterValues</documentation>
+  <input message="tns:SetParameterValues"/>
+  <output message="tns:SetParameterValuesResponse"/>
+ </operation>
+ <operation name="GetParameterNames">
+  <documentation>Service definition of function cwmp__GetParameterNames</documentation>
+  <input message="tns:GetParameterNames"/>
+  <output message="tns:GetParameterNamesResponse"/>
+ </operation>
+ <operation name="SetParameterAttributes">
+  <documentation>Service definition of function cwmp__SetParameterAttributes</documentation>
+  <input message="tns:SetParameterAttributes"/>
+  <output message="tns:SetParameterAttributesResponse"/>
+ </operation>
+ <operation name="GetParameterAttributes">
+  <documentation>Service definition of function cwmp__GetParameterAttributes</documentation>
+  <input message="tns:GetParameterAttributes"/>
+  <output message="tns:GetParameterAttributesResponse"/>
+ </operation>
+ <operation name="AddObject">
+  <documentation>Service definition of function cwmp__AddObject</documentation>
+  <input message="tns:AddObject"/>
+  <output message="tns:AddObjectResponse"/>
+ </operation>
+ <operation name="AddObjectIPTV">
+  <documentation>Service definition of function cwmp__AddObjectIPTV</documentation>
+  <input message="tns:AddObjectIPTV"/>
+  <output message="tns:AddObjectResponse"/>
+ </operation>
+ <operation name="DeleteObject">
+  <documentation>Service definition of function cwmp__DeleteObject</documentation>
+  <input message="tns:DeleteObject"/>
+  <output message="tns:DeleteObjectResponse"/>
+ </operation>
+ <operation name="Reboot">
+  <documentation>Service definition of function cwmp__Reboot</documentation>
+  <input message="tns:Reboot"/>
+  <output message="tns:RebootResponse"/>
+ </operation>
+ <operation name="Download">
+  <documentation>Service definition of function cwmp__Download</documentation>
+  <input message="tns:Download"/>
+  <output message="tns:DownloadResponse"/>
+ </operation>
+ <operation name="Upload">
+  <documentation>Service definition of function cwmp__Upload</documentation>
+  <input message="tns:Upload"/>
+  <output message="tns:UploadResponse"/>
+ </operation>
+ <operation name="FactoryReset">
+  <documentation>Service definition of function cwmp__FactoryReset</documentation>
+  <input message="tns:FactoryReset"/>
+  <output message="tns:FactoryResetResponse"/>
+ </operation>
+ <operation name="ScheduleInform">
+  <documentation>Service definition of function cwmp__ScheduleInform</documentation>
+  <input message="tns:ScheduleInform"/>
+  <output message="tns:ScheduleInformResponse"/>
+ </operation>
+ <operation name="TransferComplete">
+  <documentation>Service definition of function cwmp__TransferComplete</documentation>
+  <input message="tns:TransferComplete"/>
+  <output message="tns:TransferCompleteResponse"/>
+ </operation>
+</portType>
+
+<binding name="cwmp" type="tns:cwmpPortType">
+ <SOAP:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+ <operation name="Inform">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="GetRPCMethods">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="GetParameterValues">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="SetParameterValues">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="GetParameterNames">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="SetParameterAttributes">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="GetParameterAttributes">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="AddObject">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="AddObjectIPTV">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="DeleteObject">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="Reboot">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="Download">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="Upload">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="FactoryReset">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="ScheduleInform">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+ <operation name="TransferComplete">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:dslforum-org:cwmp-1-0" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+</binding>
+
+<service name="cwmp">
+ <documentation>gSOAP 2.8.8 generated service definition</documentation>
+ <port name="cwmp" binding="tns:cwmp">
+  <SOAP:address location="http://localhost:80"/>
+ </port>
+</service>
+
+</definitions>

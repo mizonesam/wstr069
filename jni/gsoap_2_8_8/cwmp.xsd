@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <schema targetNamespace="urn:dslforum-org:cwmp-1-0"
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:cwmp="urn:dslforum-org:cwmp-1-0"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="unqualified"
+  attributeFormDefault="unqualified">
+  <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+  <simpleType name="ParameterKeyType"><!-- cwmp__ParameterKeyType -->
+
+   <restriction base="xsd:string">
+    <maxLength value="32"/>
+   </restriction>
+  </simpleType>
+  <simpleType name="ObjectNameType"><!-- cwmp__ObjectNameType -->
+
+   <restriction base="xsd:string">
+    <pattern value=".*\."/>
+    <maxLength value="256"/>
+   </restriction>
+  </simpleType>
+  <simpleType name="CommandKeyType"><!-- cwmp__CommandKeyType -->
+
+   <restriction base="xsd:string">
+    <maxLength value="32"/>
+   </restriction>
+  </simpleType>
+  <simpleType name="FaultCodeType"><!-- cwmp__FaultCodeType -->
+
+   <restriction base="xsd:string">
+    <maxLength value="9223372036854775807"/>
+   </restriction>
+  </simpleType>
+  <simpleType name="SetParaAttrStruct-Notification"><!-- _cwmp__SetParaAttrStruct_Notification -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__SetParaAttrStruct_Notification::_cwmp__SetParaAttrStruct_Notification__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__SetParaAttrStruct_Notification::_cwmp__SetParaAttrStruct_Notification__1 -->
+    <!-- = 1 -->
+    <enumeration value="2"/><!-- _cwmp__SetParaAttrStruct_Notification::_cwmp__SetParaAttrStruct_Notification__2 -->
+    <!-- = 2 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="SetParaValRes-Status"><!-- _cwmp__SetParaValRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__SetParaValRes_Status::_cwmp__SetParaValRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__SetParaValRes_Status::_cwmp__SetParaValRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="SetParaAttrStructRes-Notification"><!-- _cwmp__SetParaAttrStructRes_Notification -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__SetParaAttrStructRes_Notification::_cwmp__SetParaAttrStructRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__SetParaAttrStructRes_Notification::_cwmp__SetParaAttrStructRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="AddObjRes-Status"><!-- _cwmp__AddObjRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__AddObjRes_Status::_cwmp__AddObjRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__AddObjRes_Status::_cwmp__AddObjRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="DelObjRes-Status"><!-- _cwmp__DelObjRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__DelObjRes_Status::_cwmp__DelObjRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__DelObjRes_Status::_cwmp__DelObjRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="DownloadRes-Status"><!-- _cwmp__DownloadRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__DownloadRes_Status::_cwmp__DownloadRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__DownloadRes_Status::_cwmp__DownloadRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <simpleType name="UploadRes-Status"><!-- _cwmp__UploadRes_Status -->
+
+   <restriction base="xsd:string">
+    <enumeration value="0"/><!-- _cwmp__UploadRes_Status::_cwmp__UploadRes_Status__0 -->
+    <!-- = 0 -->
+    <enumeration value="1"/><!-- _cwmp__UploadRes_Status::_cwmp__UploadRes_Status__1 -->
+    <!-- = 1 -->
+   </restriction>
+  </simpleType>
+  <complexType name="FaultStruct"><!-- cwmp__FaultStruct -->
+
+   <sequence>
+     <element name="FaultCode" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__FaultStruct::FaultCode -->
+     <element name="FaultString" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__FaultStruct::FaultString -->
+   </sequence>
+  </complexType>
+  <complexType name="MethodList"><!-- cwmp__MethodList -->
+
+   <sequence>
+     <element name="string" type="xsd:string" minOccurs="0" maxOccurs="unbounded" nillable="true"/><!-- cwmp__MethodList::__size -->
+   </sequence>
+  </complexType>
+  <complexType name="ParameterValueStruct"><!-- cwmp__ParameterValueStruct -->
+
+   <sequence>
+     <element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterValueStruct::Name -->
+     <element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterValueStruct::Value -->
+     <element name="Type" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterValueStruct::Type -->
+   </sequence>
+  </complexType>
+  <complexType name="SetParameterAttributesStruct"><!-- cwmp__SetParameterAttributesStruct -->
+
+   <sequence>
+     <element name="Name" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- cwmp__SetParameterAttributesStruct::Name -->
+     <element name="NotificationChange" type="xsd:boolean" minOccurs="1" maxOccurs="1"/><!-- cwmp__SetParameterAttributesStruct::NotificationChange -->
+     <element name="Notification" type="cwmp:SetParaAttrStruct-Notification" minOccurs="1" maxOccurs="1"/><!-- cwmp__SetParameterAttributesStruct::Notification -->
+     <element name="AccessListChange" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__SetParameterAttributesStruct::AccessListChange -->
+     <element name="AccessList" type="cwmp:ArrayOfstring" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__SetParameterAttributesStruct::AccessList -->
+   </sequence>
+  </complexType>
+  <complexType name="EventStruct"><!-- cwmp__EventStruct -->
+
+   <sequence>
+     <element name="EventCode" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__EventStruct::EventCode -->
+     <element name="CommandKey" type="cwmp:CommandKeyType" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__EventStruct::CommandKey -->
+   </sequence>
+  </complexType>
+  <complexType name="ParameterInfoStruct"><!-- cwmp__ParameterInfoStruct -->
+
+   <sequence>
+     <element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterInfoStruct::Name -->
+     <element name="Writable" type="xsd:int" minOccurs="1" maxOccurs="1"/><!-- cwmp__ParameterInfoStruct::Writable -->
+   </sequence>
+  </complexType>
+  <complexType name="ParameterAttributeStruct"><!-- cwmp__ParameterAttributeStruct -->
+
+   <sequence>
+     <element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterAttributeStruct::Name -->
+     <element name="Notification" type="cwmp:SetParaAttrStructRes-Notification" minOccurs="1" maxOccurs="1"/><!-- cwmp__ParameterAttributeStruct::Notification -->
+     <element name="AccessList" type="cwmp:ArrayOfstring" minOccurs="1" maxOccurs="1" nillable="true"/><!-- cwmp__ParameterAttributeStruct::AccessList -->
+   </sequence>
+  </complexType>
+  <complexType name="TransferComplete"><!-- _cwmp__TransferComplete -->
+
+   <sequence>
+     <element name="CommandKey" type="cwmp:CommandKeyType" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__TransferComplete::CommandKey -->
+     <element name="FaultStruct" type="cwmp:FaultStruct" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__TransferComplete::FaultStruct -->
+     <element name="StartTime" type="xsd:dateTime" minOccurs="1" maxOccurs="1"/><!-- _cwmp__TransferComplete::StartTime -->
+     <element name="CompleteTime" type="xsd:dateTime" minOccurs="1" maxOccurs="1"/><!-- _cwmp__TransferComplete::CompleteTime -->
+   </sequence>
+  </complexType>
+  <complexType name="TransferCompleteResponse"><!-- _cwmp__TransferCompleteResponse -->
+
+   <sequence>
+   </sequence>
+  </complexType>
+  <complexType name="Fault-SetParameterValuesFault"><!-- _cwmp__Fault_SetParameterValuesFault -->
+
+   <sequence>
+     <element name="ParameterName" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault_SetParameterValuesFault::ParameterName -->
+     <element name="FaultCode" type="cwmp:FaultCodeType" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault_SetParameterValuesFault::FaultCode -->
+     <element name="FaultString" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault_SetParameterValuesFault::FaultString -->
+   </sequence>
+  </complexType>
+  <complexType name="Fault"><!-- _cwmp__Fault -->
+
+   <sequence>
+     <element name="FaultCode" type="cwmp:FaultCodeType" minOccurs="1" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault::FaultCode -->
+     <element name="FaultString" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/><!-- _cwmp__Fault::FaultString -->
+     <element name="SetParameterValuesFault" type="cwmp:Fault-SetParameterValuesFault" minOccurs="0" maxOccurs="unbounded"/><!-- _cwmp__Fault::__sizeSetParameterValuesFault -->
+   </sequence>
+  </complexType>
+  <element name="ID" type="xsd:string"/>
+ </schema>
+
