@@ -647,13 +647,14 @@ SOAP_FMAC5 int SOAP_FMAC6 soap_serve_cwmp__Reboot(struct soap *soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap->error;
-   
+   #if 0
     memset(&sockMsg, 0x00, sizeof(sockMsg));
     sprintf(sockMsg.msg, "%s", SyMethodTypeToStr(SY_REBOOT));
     sockMsg.len = strlen(sockMsg.msg);
     strcpy(sockMsg.user, "tr069");
     Send2CmdProcThd(&sockMsg);
 	//return soap_closesock(soap);
+	#endif
 	return SOAP_OK;
 }
 
@@ -790,13 +791,14 @@ SOAP_FMAC5 int SOAP_FMAC6 soap_serve_cwmp__FactoryReset(struct soap *soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap->error;
-    
+    #if 0
     memset(&sockMsg, 0x00, sizeof(sockMsg));
     sprintf(sockMsg.msg, "%s", SyMethodTypeToStr(SY_FACTORY_RESET));
     sockMsg.len = strlen(sockMsg.msg);   
     strcpy(sockMsg.user, "tr069");
     Send2CmdProcThd(&sockMsg);
 	//return soap_closesock(soap);
+	#endif
 	return SOAP_OK;
 }
 

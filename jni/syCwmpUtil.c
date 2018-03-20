@@ -40,6 +40,7 @@
 #include "./thirdLib/ssh/libssh2_sftp.h"
 
 #include "syCwmpManagement.h"
+#include "syCwmpTaskQueue.h"
 
 #define SY_PATH_PROCNET_DEV "/proc/net/dev"
 
@@ -2067,7 +2068,7 @@ void* syIpPingTestThread(void* data)
     SySetNodeValue("Device.LAN.IPPingDiagnostics.MinimumResponseTime", tmpBuf);
     sprintf(tmpBuf, "%d", IpPingResult.MaximumResponseTime);
     SySetNodeValue("Device.LAN.IPPingDiagnostics.MaximumResponseTime", tmpBuf);
-
+#if 0
     FILE *pFile = NULL;
     pFile = fopen(SY_IPPING_INFORM_FLAG, "wb");
     if (NULL != pFile)
@@ -2075,8 +2076,10 @@ void* syIpPingTestThread(void* data)
         fwrite("1", 1, strlen("1"), pFile);
         fclose(pFile);
     }
+#endif
     gSyIpPingTesting = 0;
     gSyIpPingTestTid = 0;
+	addEvent(EVENT_PING);
     DONE;
     return NULL;
 }
@@ -2152,7 +2155,7 @@ void* syTraceRouteTestThread(void* data)
     SySetNodeValue("Device.LAN.TraceRouteDiagnostics.ResponseTime", tmpBuf);
     sprintf(tmpBuf, "%d", TraceRouteResult.NumberOfRouteHops);
     SySetNodeValue("Device.LAN.TraceRouteDiagnostics.NumberOfRouteHops", tmpBuf);
-
+#if 0
     FILE *pFile = NULL;
     pFile = fopen(SY_TRACEROUTE_INFORM_FLAG, "wb");
     DPrint("pFile:%p\n", pFile);
@@ -2161,8 +2164,10 @@ void* syTraceRouteTestThread(void* data)
         fwrite("1", 1, strlen("1"), pFile);
         fclose(pFile);
     }
+#endif
     gSyTraceRouteTesting = 0;
     gSyTraceRouteTestTid = 0;
+	addEvent(EVENT_TRACEROUTE);
     DONE;
     return NULL;
 }
@@ -2185,7 +2190,7 @@ void* syBandwidthTestThread(void* data)
     SySetNodeValue("Device.X_00E0FC.BandwidthDiagnostics.MaxSpeed", tmpBuf);
     sprintf(tmpBuf, "%d", BandwidthTestResult.MinSpeed);
     SySetNodeValue("Device.X_00E0FC.BandwidthDiagnostics.MinSpeed", tmpBuf);
-
+#if 0
     FILE *pFile = NULL;
     pFile = fopen(SY_BANDWIDTH_INFORM_FLAG, "wb");
     DPrint("pFile:%p\n", pFile);
@@ -2194,8 +2199,10 @@ void* syBandwidthTestThread(void* data)
         fwrite("1", 1, strlen("1"), pFile);
         fclose(pFile);
     }
+#endif
     gSyBandwidthDiagnosticsTesting = 0;
     gSyBandwidthDiagnosticsTid = 0;
+	addEvent(EVENT_BANDWIDTH);
     DONE;
     return NULL;
 }

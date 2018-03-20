@@ -34,6 +34,7 @@
 #include "syCwmpManagement.h"
 #include "cJSON.h"
 #include "cJSON_Utils.h"
+#include "syCwmpTaskQueue.h"
 
 #define AV_SERVER     "125.88.69.132"	//guangdong
 
@@ -387,145 +388,146 @@ void* CmdProcThread(void* data)
             usleep(1000 * 1000);
             continue;
         }
-    }while (0 == gExit);
     
-    fdmax = serverfd;
     
-    while (0 == gExit)
-    {
-        FD_ZERO(&readfds);
-        FD_SET(serverfd, &readfds);
-        for(i = 0; i < MAX_CLIENT; i++)
-        {
-            if (clientfd[i] != -1)
-            {
-                if (clientfd[i] > fdmax)
-                    fdmax = clientfd[i];
-                FD_SET(clientfd[i], &readfds);
-            }
-        }
-        timeout.tv_sec = 3;
-        timeout.tv_usec = 0;
-        nRet = select(fdmax + 1, &readfds, NULL, NULL, (struct timeval *)&timeout);
-        if (nRet <= 0) {
-            if(-1 == nRet) PERROR("select");
-            continue;
-        }
-        
-        if (FD_ISSET(serverfd, &readfds) > 0) {
-    		struct sockaddr_in RecvAddr;
-    		int nLen = sizeof(RecvAddr);
-    		memset(&RecvAddr, 0, sizeof(RecvAddr));
-            int newfd = accept(serverfd, (struct sockaddr *)&RecvAddr, &nLen);
+	    fdmax = serverfd;
+	    
+	    while (0 == gExit)
+	    {
+	        FD_ZERO(&readfds);
+	        FD_SET(serverfd, &readfds);
+	        for(i = 0; i < MAX_CLIENT; i++)
+	        {
+	            if (clientfd[i] != -1)
+	            {
+	                if (clientfd[i] > fdmax)
+	                    fdmax = clientfd[i];
+	                FD_SET(clientfd[i], &readfds);
+	            }
+	        }
+	        timeout.tv_sec = 3;
+	        timeout.tv_usec = 0;
+	        nRet = select(fdmax + 1, &readfds, NULL, NULL, (struct timeval *)&timeout);
+	        if (nRet <= 0) {
+	            if(-1 == nRet) PERROR("select");
+	            continue;
+	        }
+	        
+	        if (FD_ISSET(serverfd, &readfds) > 0) {
+	    		struct sockaddr_in RecvAddr;
+	    		int nLen = sizeof(RecvAddr);
+	    		memset(&RecvAddr, 0, sizeof(RecvAddr));
+	            int newfd = accept(serverfd, (struct sockaddr *)&RecvAddr, &nLen);
 
-            struct in_addr peerAddr;
-    		peerAddr.s_addr = 0;
-			peerAddr.s_addr = RecvAddr.sin_addr.s_addr;
-			DPrint("Peer ip %s:%d, Net-Order(BE) port=%d\n",
-					inet_ntoa(peerAddr), ntohs(RecvAddr.sin_port), RecvAddr.sin_port);
+	            struct in_addr peerAddr;
+	    		peerAddr.s_addr = 0;
+				peerAddr.s_addr = RecvAddr.sin_addr.s_addr;
+				DPrint("Peer ip %s:%d, Net-Order(BE) port=%d\n",
+						inet_ntoa(peerAddr), ntohs(RecvAddr.sin_port), RecvAddr.sin_port);
 
-            gSyTR069Sockfd = newfd;
-            for(i = 0; i < MAX_CLIENT; i++) {
-                if (clientfd[i] == -1) {
-                    clientfd[i] = newfd;
-                    DPrint("New connection coming.[%d]\n", newfd);
-                    break;
-                }
-            }
-            
-            continue;
-        }
+	            gSyTR069Sockfd = newfd;
+	            for(i = 0; i < MAX_CLIENT; i++) {
+	                if (clientfd[i] == -1) {
+	                    clientfd[i] = newfd;
+	                    DPrint("New connection coming.[%d]\n", newfd);
+	                    break;
+	                }
+	            }
+	            
+	            continue;
+	        }
 
-        for(i = 0; i < MAX_CLIENT; i++) {
-            if (-1 == clientfd[i]) {
-                continue;
-            }
+	        for(i = 0; i < MAX_CLIENT; i++) {
+	            if (-1 == clientfd[i]) {
+	                continue;
+	            }
 
-            if (!(FD_ISSET(clientfd[i], &readfds) > 0)) {
-                continue;
-            }
+	            if (!(FD_ISSET(clientfd[i], &readfds) > 0)) {
+	                continue;
+	            }
 
-            memset(&gSyRecvSockmsg, 0, sizeof(gSyRecvSockmsg));
-            length = recv(clientfd[i], &gSyRecvSockmsg, sizeof(gSyRecvSockmsg), 0);
+	            memset(&gSyRecvSockmsg, 0, sizeof(gSyRecvSockmsg));
+	            length = recv(clientfd[i], &gSyRecvSockmsg, sizeof(gSyRecvSockmsg), 0);
 
-            switch(length) {
-            case -1:
+	            switch(length) {
+	            case -1:
 
-                sleep(1);
-                DPrint("Recv():%s", strerror(errno));
-                break;
-            case 0:
-            
-                if (clientfd[i] == gSyTR069Sockfd)
-                {
-                    gSyTR069Sockfd = -1;
-                }
-                SyCloseSocket(clientfd[i]);
-                clientfd[i] = -1;
-                DPrint("Closed by peer.");
-                break;
-            case sizeof(struct sockmsg):
+	                sleep(1);
+	                DPrint("Recv():%s", strerror(errno));
+	                break;
+	            case 0:
+	            
+	                if (clientfd[i] == gSyTR069Sockfd)
+	                {
+	                    gSyTR069Sockfd = -1;
+	                }
+	                SyCloseSocket(clientfd[i]);
+	                clientfd[i] = -1;
+	                DPrint("Closed by peer.");
+	                break;
+	            case sizeof(struct sockmsg):
 
-                if(strcmp(gSyRecvSockmsg.user, "tr069") == 0)
-                {
-                    DispatchCommand(gSyRecvSockmsg.msg, gSyRecvSockmsg.len);
-                }
-                else if (strcmp(gSyRecvSockmsg.user, "onekeyCK") == 0)
-                {
-                    DispatchOneKeyCK(gSyRecvSockmsg.msg, gSyRecvSockmsg.len);
-                    if((send(clientfd[i], &gSySendSockmsgToOneKeyCK, sizeof(gSySendSockmsgToOneKeyCK), 0)) < 0)
-                    {
-                        DPrint("send() failed\n");
-                    }
-                }
-                else if (strcmp(gSyRecvSockmsg.user, "IPTV") == 0)
-                {
-                    //运作iptv的请求
-                    HandleIptvReq(&gSyRecvSockmsg);
-                    if ((0 == gSyIsTmStart) && (SY_OP_START != gSyRecvSockmsg.type)) {
-                        DPrint("No Start..\n");
-                        continue;
-                    }
-                    if(-1 == send(clientfd[i], &gSySendSockmsg, sizeof(gSySendSockmsg), MSG_NOSIGNAL)) {
+	                if(strcmp(gSyRecvSockmsg.user, "tr069") == 0)
+	                {
+	                    DispatchCommand(gSyRecvSockmsg.msg, gSyRecvSockmsg.len);
+	                }
+	                else if (strcmp(gSyRecvSockmsg.user, "onekeyCK") == 0)
+	                {
+	                    DispatchOneKeyCK(gSyRecvSockmsg.msg, gSyRecvSockmsg.len);
+	                    if((send(clientfd[i], &gSySendSockmsgToOneKeyCK, sizeof(gSySendSockmsgToOneKeyCK), 0)) < 0)
+	                    {
+	                        DPrint("send() failed\n");
+	                    }
+	                }
+	                else if (strcmp(gSyRecvSockmsg.user, "IPTV") == 0)
+	                {
+	                    //运作iptv的请求
+	                    HandleIptvReq(&gSyRecvSockmsg);
+	                    if ((0 == gSyIsTmStart) && (SY_OP_START != gSyRecvSockmsg.type)) {
+	                        DPrint("No Start..\n");
+	                        continue;
+	                    }
+	                    if(-1 == send(clientfd[i], &gSySendSockmsg, sizeof(gSySendSockmsg), MSG_NOSIGNAL)) {
 
-                        DPrint("Send Error\n");
-                    }
-                    //DPrint("gSyRecvSockmsg.type:%d\n", gSyRecvSockmsg.type);
-                    
-                }
-                break;
-            default: {
-                
-                char jsonBuf[2048] = {0};
-                strncpy(jsonBuf, (char *)&gSyRecvSockmsg, sizeof(jsonBuf));
-                /* json 数据*/
-                if (NULL != strstr(jsonBuf, "{"))
-                {
-                    HandleJson(clientfd[i], jsonBuf);
-                }
-                /* 零配置APK发送过来的零配置消息 */
-                else
-                {
-                    char recvBuf[64] = {0};
-                    sscanf(((char*)&gSyRecvSockmsg), "%[^:]:", recvBuf);
-                    if (0 == strcmp(recvBuf, "zeroSet"))
-                    {
-                        if((send(clientfd[i], "ok", 2, 0)) < 0)
-                        {
-                            DPrint("send data to zero apk failed.\n");
-                        }
-                        HandleZeroApkReq();
-                    }
-                    else
-                    {
-                        DPrint("malformed! recv.msg:%s\n", gSyRecvSockmsg.msg);
-                    }
-                }
-                break;
-            }
-            }
-        }
-    }
+	                        DPrint("Send Error\n");
+	                    }
+	                    //DPrint("gSyRecvSockmsg.type:%d\n", gSyRecvSockmsg.type);
+	                    
+	                }
+	                break;
+	            default: {
+	                
+	                char jsonBuf[2048] = {0};
+	                strncpy(jsonBuf, (char *)&gSyRecvSockmsg, sizeof(jsonBuf));
+	                /* json 数据*/
+	                if (NULL != strstr(jsonBuf, "{"))
+	                {
+	                    HandleJson(clientfd[i], jsonBuf);
+	                }
+	                /* 零配置APK发送过来的零配置消息 */
+	                else
+	                {
+	                    char recvBuf[64] = {0};
+	                    sscanf(((char*)&gSyRecvSockmsg), "%[^:]:", recvBuf);
+	                    if (0 == strcmp(recvBuf, "zeroSet"))
+	                    {
+	                        if((send(clientfd[i], "ok", 2, 0)) < 0)
+	                        {
+	                            DPrint("send data to zero apk failed.\n");
+	                        }
+	                        HandleZeroApkReq();
+	                    }
+	                    else
+	                    {
+	                        DPrint("malformed! recv.msg:%s\n", gSyRecvSockmsg.msg);
+	                    }
+	                }
+	                break;
+	            }
+	            }
+	        }
+	    }
+	}while (0 == gExit);
 
     DONE;
     return NULL;
@@ -1306,6 +1308,7 @@ void HandleIptvReq(struct sockmsg *pMsg)
                 DPrint("cValueChangeBuf0:%s\n", cValueChangeBuf);
                 fwrite(cValueChangeBuf, 1, strlen(cValueChangeBuf), pFile);
                 fclose(pFile);
+				addEvent(EVENT_VALUE_CHANGE);
             }
             break;
         case IPADDR:
@@ -1331,6 +1334,7 @@ void HandleIptvReq(struct sockmsg *pMsg)
                         DPrint("cValueChangeBuf:%s\n", cValueChangeBuf);
                         fwrite(cValueChangeBuf, 1, strlen(cValueChangeBuf), pFile);
                         fclose(pFile);
+						addEvent(EVENT_VALUE_CHANGE);
                     }
                     else {
                         remove(SY_VALUE_CHANGE_INFORM_FLAG_1);
@@ -1375,6 +1379,7 @@ void HandleIptvReq(struct sockmsg *pMsg)
                         DPrint("cValueChangeBuf:%s\n", cValueChangeBuf);
                         fwrite(cValueChangeBuf, 1, strlen(cValueChangeBuf), pFile);
                         fclose(pFile);
+						addEvent(EVENT_VALUE_CHANGE);
                     }
                     else
                     {
@@ -1529,6 +1534,7 @@ void HandleIptvReq(struct sockmsg *pMsg)
 					break;
 				}
                 fclose(pFile);
+				addEvent(EVENT_VALUE_CHANGE);
 			}
             break;
         }
@@ -1894,7 +1900,163 @@ int startLogcat(char* cmd)
     return SY_SUCCESS;
 
 }
+void HandleConnectRequest(){
+	DPrint("Connection request is coming.\ncwmp session = %d",syCwmpSession);
+    while( 0 == syCwmpSession )
+    {
+       usleep(50*1000);
+    }
+    syCwmpSession = 0;
 
+    gsyGlobalParmStru.SessionState |= SY_SESSION_IDLE;
+    gsyGlobalParmStru.SessionEvent |= SY_EVENT_START;
+    gsyGlobalParmStru.SessionTrigger |= SY_TRIGGER_CONNECTION_REQUEST;
+    gsyGlobalParmStru.SessionFlags |= SY_STATE_NONE;
+
+    gSyNatSession = SY_TRUE;
+    if (0 == gSyIsCPEStart)
+    {
+       gSyIsCPEStart = 1;
+    }
+    syNATCmd = 1;
+}
+void HandleDownload(char *pos){
+
+	char* argument[10] = {0};
+	char userPasswd[256] = {0};
+    char remotepath[256] = {0};
+	char msgBuf[1024] = {0};
+	char cmdBuf[2048] = {0};
+	char localPath[1024] = {0};
+	syHostInfo  szHostInfo;
+
+    int usedNum = SyDelimArgument2(pos, "&", argument);
+    char  URL[512] = {0};
+	char* urlPtr = URL;
+    char* tempPtr = NULL;
+    char* fileNamePtr = NULL;
+    char* fileSizePtr = argument[4];
+    char* commandKey = argument[usedNum-1];
+	#if 0
+    FILE* pFile = fopen(SY_UPGRADE_FLAG, "w+");
+    if (!pFile) {
+        PERROR(SY_UPGRADE_FLAG" fopen:");
+        return ;
+    }
+    int ret = fwrite(commandKey, 1, strlen(commandKey), pFile);
+    DPrint("written %d bytes.The command key is %s.\n", ret, commandKey);
+    fclose(pFile);
+	#endif
+    DPrint("%d, url %s\n", usedNum, argument[1]);
+    DPrint("Filesize %s\n", fileSizePtr);
+    
+    if ((tempPtr = strrchr(URL, '/')) != NULL) {
+		memcpy(localPath, URL, tempPtr - URL);
+        fileNamePtr = tempPtr;
+    }
+	else {
+		memcpy(localPath, URL, strlen(URL));
+		fileNamePtr = "";
+	}
+    DPrint("file name:%s.\n", fileNamePtr);
+    DPrint("Download type:%c.\n", argument[0][0]);
+    if (DOWNLOAD_FIRMWARE_UPGRADE_IMAGE == argument[0][0]) {
+        int msgLen = snprintf(msgBuf, sizeof(msgBuf),
+                             QU"UpgradeServerUrl+%s|"
+                               "UpgradeFileName+%s|"
+                               "FileSize+%s"QU,
+                               URL,
+                               fileNamePtr,
+                               fileSizePtr);
+        snprintf(cmdBuf, sizeof(cmdBuf), 
+						BR"\"user\":\"TM\","
+                         "\"type\":1,"
+                         "\"msg\" :%s,"
+                         "\"len\" :%d"RB,
+                         msgBuf,
+                         msgLen);
+        Send2UpgradeCli(cmdBuf, strlen(cmdBuf));
+    }
+    else if (DOWNLOAD_VERDOR_CONFIGURATION_FILE == argument[0][0]) {
+        if (SY_FAILED == SyUrlParse(URL, &szHostInfo)) {
+            DPrint("Parse URL failed!\n");
+            return ;
+        }
+#ifdef SY_HAVE_LIBCURL
+#ifdef SY_SH_TR069
+        sscanf(URL, "%*[^//]//%[^@]", userPasswd);
+        sscanf(URL, "%*[^@]@%[^]", remotepath);
+        DPrint("userPasswd:%s, remotepath:%s\n", userPasswd, remotepath);
+        syDownload(szHostInfo.transferType, userPasswd, remotepath,
+            localPath, SY_TIMEOUT, SY_TRY_TIMES);
+#endif
+#endif
+    }
+	
+    for (int i = 0; i < usedNum; i++) {
+        DPrint("argument[%d]:%s\n", i, argument[i]);
+        if (NULL != argument[i]){
+            free(argument[i]);
+            argument[i] =  NULL;
+        }
+    }
+}
+
+void HandleUpload(char* pos){
+
+	char* argument[10] = {0};
+	char tmpBuf[1024] = {0};
+	char userPasswd[128] = {0};
+	char remotepath[512] = {0};
+	syHostInfo  szHostInfo;
+	
+    int usedNum = SyDelimArgument2(pos, "&", argument);
+    DPrint("argument[1]:%s\n", argument[1]);
+    memcpy(tmpBuf, argument[1], strlen(argument[1]));
+    DPrint("tmpBuf:%s\n", tmpBuf);
+    if (SY_FAILED == SyUrlParse(tmpBuf, &szHostInfo)) {
+        DPrint("Parse URL failed\n");
+        return ;
+    }
+
+    DPrint("Upload type:%c.\n", argument[0][0]);
+#ifdef SY_SH_TR069
+    sscanf(tmpBuf, "%*[^//]//%[^@]", userPasswd);
+    sscanf(tmpBuf, "%*[^@]@%[^]", remotepath);
+    DPrint("userPasswd:%s, remotepath:%s.\n", userPasswd, remotepath);
+#endif
+    if (UPLOAD_VERDOR_CONFIGURATION_FILE == argument[0][0]) {
+#ifdef SY_HAVE_LIBCURL
+#ifdef SY_SH_TR069
+        syUpload(szHostInfo.transferType, userPasswd, remotepath, "./route.xml", SY_TIMEOUT, SY_TRY_TIMES);
+#endif
+#endif
+    } 
+	else if (UPLOAD_VERDOR_LOG_FILE == argument[0][0]) {
+#ifdef SY_HAVE_LIBCURL
+#ifdef SY_SH_TR069
+        syUpload(szHostInfo.transferType, userPasswd, remotepath, "./route.xml", SY_TIMEOUT, SY_TRY_TIMES);
+#endif
+#endif
+    }
+
+    for (int i = 0; i < usedNum; i++) {
+        DPrint("argument[%d]:%s\n", i, argument[i]);
+        if (NULL != argument[i]) {
+            free(argument[i]);
+            argument[i] =  NULL;
+        }
+    }
+    sleep(2);
+}
+void HandleUtil(pthread_t *threadid, iFunction func, const char *key) {
+	if (0 == *threadid) {
+        pthread_create(threadid, NULL, func, NULL);
+    }
+    else {
+        DPrint("%s thread is running!\n", key);
+    }
+}
 
 int Send2zeroApk(int flag)
 {

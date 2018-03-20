@@ -7,6 +7,7 @@
 #include "syCwmpUtil.h"
 #include "syCwmpSocket.h"
 #include "syCwmpManagement.h"
+#include "syCwmpTaskQueue.h"
 
 /* 类名包名是口头约定，并未写入文档 */
 #define CLASS "com/android/tm/Net/TR069"
@@ -273,6 +274,7 @@ const char* getVer()
 
 void* mainly(void* unless)
 {
+	Start();
     if (!CwmpMain()) {
         EPrint("Fatal: CwmpMain occur error.\n");
         return NULL;
@@ -330,6 +332,7 @@ extern void HandleIptvReq(struct sockmsg * pMsg);
 JNIEXPORT
 void JNICALL ScreenOn(JNIEnv *env, jobject thiz)
 {
+/*
     Msg_TR069_s sendMsg;
     memset(&sendMsg, 0, sizeof(sendMsg));
     sendMsg.cmd = SCREENON;
@@ -340,6 +343,8 @@ void JNICALL ScreenOn(JNIEnv *env, jobject thiz)
     DPrint("Screen on\n");
 
     Send2CmdProcThd(&sendMsg);
+   */
+   AddEvent(EVENT_INFORM, "1 BOOT");
 	return ;
 }
 
@@ -347,6 +352,7 @@ void JNICALL ScreenOn(JNIEnv *env, jobject thiz)
 JNIEXPORT
 void JNICALL ScreenOff(JNIEnv *env, jobject thiz)
 {
+/*
 	Msg_TR069_s sendMsg;
     memset(&sendMsg, 0, sizeof(sendMsg));
     sendMsg.cmd = SCREENOFF;
@@ -357,6 +363,8 @@ void JNICALL ScreenOff(JNIEnv *env, jobject thiz)
     DPrint("Screen off\n");
 
     Send2CmdProcThd(&sendMsg);
+ */
+	addEvent(EVENT_SHUT_DOWN);
 	return ;
 }
 

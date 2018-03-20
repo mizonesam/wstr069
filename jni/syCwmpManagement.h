@@ -99,6 +99,11 @@ typedef enum
 
 } syInformEventType;
 
+typedef struct _Event {
+	syInformEventType num;
+	char EventStr[64];
+	char CommandKey[64];
+} EVENT_MOD_t;
 
 /*State Between CPE and ACS*/
 typedef enum _sySessionState
@@ -324,6 +329,8 @@ CreateIfmPara(struct soap* soap,   void* handle);
 LOCAL void 
 CreateInform(struct soap* soap, void* handle);
 
+int HandleCreateInform(void* handle, char* msg);
+
 /* 上报inform并启动心跳线程 */
 LOCAL void* 
 ClientThread(void* data);
@@ -389,11 +396,14 @@ InitAuthProto(struct soap *soap);
 /* 循环检测一些标志文件,当检测变化时上报对应的Inform */
 LOCAL void *
 ProcIfmThread(void* data);
-
+#if 0
 /* 实际执行检测结果的函数 */
 LOCAL void 
 HandleInform(struct soap* soap , char* inform);
-
+#else
+void 
+HandleInform(void* inform, int len);
+#endif
 /* 没卵用 */
 LOCAL bool 
 AcsConnInit(struct soap *soap);

@@ -20,6 +20,7 @@
 #include "syCwmpSocket.h"
 #include "syCwmpUtil.h"
 #include "syCwmpManagement.h"
+#include "syCwmpTaskQueue.h"
 
 extern int StartupInfoFlag;
 extern int zeroConfigFlag;
@@ -35,6 +36,7 @@ int gSyIsCPEStart = 0;
 int gSyIsFirstHeartBeat = 1;
 int gSyHeartInterval = 360;
 int syEPGmodifySupported = 0;
+int gSyIsZeroConfig = 0;
 
 /* sendInform标志，如果成功1，失败0，默认0,强制切换到调度2 */
 int gSendInfomResult = 0;
@@ -61,13 +63,14 @@ struct _EventStruct*            gSyEvent;
 struct _DeviceIdStruct          gSyDeviceId;
 struct _ParameterValueStruct*   gSyParamList = NULL;
 struct soap* gSySoap = NULL;
+struct soap* gSyClSoap = NULL;
 struct _cwmp__Fault*   gSyCwmpFault = NULL;
 
 int gSyErrorCodeNum = 0;
 int gSyErrorCodeSwitch = 0;
 int gSyErrorCodeInterval = 0;
 syErrorCodeStu gSyErrorCodeArr[20] = {0};
-
+#if 0
 char* syInformEventString[] =
 {
     "0 BOOTSTRAP",
@@ -112,6 +115,24 @@ char* syInformEventCommandKey[] =
     "CTC LOG_PERIODIC",
     "X CTC ErrorCode",
 
+};
+#endif
+EVENT_MOD_t gSendEvent[16] = {
+    {SY_EVENT_BOOTSTRAP,							"0 BOOTSTRAP",							""},
+    {SY_EVENT_BOOT,									"1 BOOT", 								""},
+    {SY_EVENT_PERIODIC,								"2 PERIODIC",							""},
+    {SY_EVENT_VALUE_CHANGE,							"4 VALUE CHANGE",						""},
+    {SY_EVENT_CONNECTION_REQUEST,					"6 CONNECTION REQUEST",					""},
+    {SY_EVENT_TRANSFER_COMPLETE,					"7 TRANSFER COMPLETE",					""},
+    {SY_EVENT_DIAGNOSTICS_COMPLETE,					"8 DIAGNOSTICS COMPLETE",				""},
+    {SY_EVENT_REQUEST_DOWNLOAD,						"9 REQUEST DOWNLOAD",					""},
+    {SY_EVENT_AUTONOMOUS_TRANSFER_COMPLETE,			"10 AUTONOMOUS TRANSFER COMPLETE",		""},
+    {SY_EVENT_REBOOT,								"M Reboot",					            ""},
+    {SY_EVENT_DOWNLOAD,								"M Download",							""},
+    {SY_EVENT_UPLOAD,								"M Upload",								""},
+    {SY_EVENT_X_CTC_SHUT_DOWN,						"M X_CTC_SHUT_DOWN",					""},
+    {SY_EVENT_CTC_LOG_PERIODIC,						"M CTC LOG_PERIODIC",					""},
+    {SY_EVENT_X_00E0FC_ErrorCode,					"X CTC ErrorCode",						""},
 };
 
 char* syInformParameters[] =
@@ -571,9 +592,9 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
             gSyEvent->__ptrEventStruct = (struct cwmp__EventStruct*)
                                          malloc(eventNum * sizeof(struct cwmp__EventStruct));
             gSyEvent->__ptrEventStruct[0].EventCode =
-                soap_strdup(soap, syInformEventString[nType]);
+                soap_strdup(soap, gSendEvent[nType].EventStr);
             gSyEvent->__ptrEventStruct[0].CommandKey =
-                soap_strdup(soap, syInformEventCommandKey[nType]);
+                soap_strdup(soap, gSendEvent[nType].CommandKey);
             /*
             gSyEvent->__ptrEventStruct[1].EventCode =
                  soap_strdup(soap, syInformEventString[SY_EVENT_CONNECTION_REQUEST]);
@@ -597,9 +618,9 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
                 gSyEvent->__ptrEventStruct = (struct cwmp__EventStruct*)
                                              malloc(eventNum * sizeof(struct cwmp__EventStruct));
                 gSyEvent->__ptrEventStruct[0].EventCode =
-                    soap_strdup(soap, syInformEventString[nType]);
+                    soap_strdup(soap, gSendEvent[nType].EventStr);
                 gSyEvent->__ptrEventStruct[0].CommandKey =
-                    soap_strdup(soap, syInformEventCommandKey[nType]);
+                    soap_strdup(soap, gSendEvent[nType].CommandKey);
                 /*
                 gSyEvent->__ptrEventStruct[1].EventCode =
                      soap_strdup(soap, syInformEventString[SY_EVENT_VALUE_CHANGE]);
@@ -618,9 +639,9 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
                 gSyEvent->__ptrEventStruct = (struct cwmp__EventStruct*)
                                              malloc(eventNum * sizeof(struct cwmp__EventStruct));
                 gSyEvent->__ptrEventStruct[0].EventCode =
-                    soap_strdup(soap, syInformEventString[nType]);
+                    soap_strdup(soap, gSendEvent[nType].EventStr);
                 gSyEvent->__ptrEventStruct[0].CommandKey =
-                    soap_strdup(soap, syInformEventCommandKey[nType]);
+                    soap_strdup(soap, gSendEvent[nType].CommandKey);
                 /*
                 gSyEvent->__ptrEventStruct[1].EventCode =
                      soap_strdup(soap, syInformEventString[SY_EVENT_VALUE_CHANGE]);
@@ -636,17 +657,17 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
         gSyEvent->__ptrEventStruct = (struct cwmp__EventStruct*)
                                      malloc(eventNum * sizeof(struct cwmp__EventStruct));
         gSyEvent->__ptrEventStruct[0].EventCode =
-            soap_strdup(soap, syInformEventString[nType]);
+            soap_strdup(soap, gSendEvent[nType].EventStr);
         gSyEvent->__ptrEventStruct[0].CommandKey =
-            soap_strdup(soap, syInformEventCommandKey[nType]);
+            soap_strdup(soap, gSendEvent[nType].CommandKey);
         gSyEvent->__ptrEventStruct[1].EventCode =
-            soap_strdup(soap, syInformEventString[SY_EVENT_CONNECTION_REQUEST]);
+            soap_strdup(soap, gSendEvent[SY_EVENT_CONNECTION_REQUEST].EventStr);
         gSyEvent->__ptrEventStruct[1].CommandKey =
-            soap_strdup(soap, syInformEventCommandKey[SY_EVENT_CONNECTION_REQUEST]);
+            soap_strdup(soap, gSendEvent[SY_EVENT_CONNECTION_REQUEST].CommandKey);
         gSyEvent->__ptrEventStruct[2].EventCode =
-            soap_strdup(soap, syInformEventString[SY_EVENT_BOOT]);
+            soap_strdup(soap, gSendEvent[SY_EVENT_BOOT].EventStr);
         gSyEvent->__ptrEventStruct[2].CommandKey =
-            soap_strdup(soap, syInformEventCommandKey[SY_EVENT_BOOT]);
+            soap_strdup(soap, gSendEvent[SY_EVENT_BOOT].CommandKey);
     }
     else if (1 == gSyUpdateSuccess)
     {
@@ -655,13 +676,13 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
         gSyEvent->__ptrEventStruct = (struct cwmp__EventStruct*)
                                      malloc(eventNum * sizeof(struct cwmp__EventStruct));
         gSyEvent->__ptrEventStruct[0].EventCode =
-            soap_strdup(soap, syInformEventString[nType]);
+            soap_strdup(soap, gSendEvent[nType].EventStr);
         gSyEvent->__ptrEventStruct[0].CommandKey =
-            soap_strdup(soap, syInformEventCommandKey[nType]);
+            soap_strdup(soap, gSendEvent[nType].CommandKey);
         gSyEvent->__ptrEventStruct[1].EventCode =
-            soap_strdup(soap, syInformEventString[SY_EVENT_VALUE_CHANGE]);
+            soap_strdup(soap, gSendEvent[SY_EVENT_VALUE_CHANGE].EventStr);
         gSyEvent->__ptrEventStruct[1].CommandKey =
-            soap_strdup(soap, syInformEventCommandKey[SY_EVENT_VALUE_CHANGE]);
+            soap_strdup(soap, gSendEvent[SY_EVENT_VALUE_CHANGE].CommandKey);
     }
     else if (SY_EVENT_PERIODIC == nType)
     {
@@ -685,17 +706,17 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
             gSyEvent->__ptrEventStruct = (struct cwmp__EventStruct*)
                                          malloc(eventNum * sizeof(struct cwmp__EventStruct));
             gSyEvent->__ptrEventStruct[0].EventCode =
-                soap_strdup(soap, syInformEventString[SY_EVENT_VALUE_CHANGE]);
+                soap_strdup(soap, gSendEvent[SY_EVENT_VALUE_CHANGE].EventStr);
             gSyEvent->__ptrEventStruct[0].CommandKey =
-                soap_strdup(soap, syInformEventCommandKey[SY_EVENT_VALUE_CHANGE]);
+                soap_strdup(soap, gSendEvent[SY_EVENT_VALUE_CHANGE].CommandKey);
         }
         else {
             gSyEvent->__ptrEventStruct = (struct cwmp__EventStruct*)
                                          malloc(eventNum * sizeof(struct cwmp__EventStruct));
             gSyEvent->__ptrEventStruct[0].EventCode =
-                soap_strdup(soap, syInformEventString[nType]);
+                soap_strdup(soap, gSendEvent[nType].EventStr);
             gSyEvent->__ptrEventStruct[0].CommandKey =
-                soap_strdup(soap, syInformEventCommandKey[nType]);
+                soap_strdup(soap, gSendEvent[nType].CommandKey);
         }
     }
     else
@@ -703,9 +724,9 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
         gSyEvent->__ptrEventStruct = (struct cwmp__EventStruct*)
                                      malloc(eventNum * sizeof(struct cwmp__EventStruct));
         gSyEvent->__ptrEventStruct[0].EventCode =
-            soap_strdup(soap, syInformEventString[nType]);
+            soap_strdup(soap, gSendEvent[nType].EventStr);
         gSyEvent->__ptrEventStruct[0].CommandKey =
-            soap_strdup(soap, syInformEventCommandKey[nType]);
+            soap_strdup(soap, gSendEvent[nType].CommandKey);
     }
     gSyEvent->__size = eventNum;
 
@@ -1169,7 +1190,7 @@ LOCAL int SendEmptyPost(struct soap* soap)
 
     return SY_SUCCESS;
 }
-
+#if 0
 LOCAL void HandleInform(struct soap* soap , char* inform)
 {
     int fd = -1;
@@ -1383,7 +1404,35 @@ LOCAL void HandleInform(struct soap* soap , char* inform)
         //DPrint("%s open Error\n", inform);
     }
 }
+#else
+void HandleInform(void* inform, int len) //准备上报
+{
+	syInformEventType handle;
+	if(len != 0){
+		for(int i = 0; i < sizeof(gSendEvent)/sizeof(gSendEvent[0]); i++){
+			if(0 == strcmp((char*)inform, gSendEvent[i].EventStr)){
+				handle = i;
+				break;
+			}
+		}
+	}
+	else
+		handle = (int)inform;
+	DPrint("event code:%d\n", handle);
+	if(gSyClSoap == NULL){
+		DPrint("gSyClSoap error\n");
+		return;
+	}
+	if(SY_SUCCESS == SendInform(gSyClSoap, (void*)handle)){
+		SendEmptyPost(gSyClSoap);
+	}
 
+	if(handle != SY_EVENT_X_CTC_SHUT_DOWN){
+		RecvRPC(gSyClSoap);
+	}
+	DPrint("<---\n");
+}
+#endif
 LOCAL bool GetDeviceInfo()
 {
     char* pTmpBuf = NULL;
@@ -2400,7 +2449,10 @@ LOCAL void* ClientThread(void* data)
 
     DO;
 
-    memcpy(&SoapClient, data, sizeof(struct soap));
+    memcpy(&SoapClient, data, sizeof(struct soap));	
+	if(gSyClSoap == NULL){
+		gSyClSoap = soap_copy(&SoapClient);
+	}
     /* 这里应该是在等待接收线程就绪 */
     sleep(1);
 
@@ -2445,37 +2497,41 @@ LOCAL void* ClientThread(void* data)
            gsyGlobalParmStru.SessionState);
 
     if (SY_SESSION_IDLE == gsyGlobalParmStru.SessionState){ sleep(3); }
-
-    if (SY_ACS_VALUE_CHANGED == gsyAcsCpeParamStru.IsAcsContacted)
-    {
-        if (SY_SUCCESS == SendInform(&SoapClient, (void*)SY_EVENT_VALUE_CHANGE)) {
-            SendEmptyPost(&SoapClient);
-        }
-        else {
-            soap_end(&SoapClient);
-        }
-    }
-    else if (SY_ACS_NO_CONTACTED == gsyAcsCpeParamStru.IsAcsContacted) {
-        HandleZeroCfg(&SoapClient);
-    }
-    else {
-        
-        if (SY_SUCCESS == SendInform(&SoapClient, (void*)SY_EVENT_BOOT))
-        {
-            DPrint("1 boot register OK\n");
-            SendEmptyPost(&SoapClient);
-        }
-        else {
-            soap_end(&SoapClient);
-        }
-    }
-    gsyGlobalParmStru.SessionState = SY_SESSION_IDLE;
-    gSyIsFirst = 1;
-    RecvRPC(&SoapClient);
-    gSyIsFirst = 0;
-
+	if (gSyIsZeroConfig){
+		HandleZeroCfg(&SoapClient);
+	}
+	else{
+		/*
+	    if (SY_ACS_VALUE_CHANGED == gsyAcsCpeParamStru.IsAcsContacted)
+	    {
+	        if (SY_SUCCESS == SendInform(&SoapClient, (void*)SY_EVENT_VALUE_CHANGE)) {
+	            SendEmptyPost(&SoapClient);
+	        }
+	        else {
+	            soap_end(&SoapClient);
+	        }
+	    }
+	    else if (SY_ACS_NO_CONTACTED == gsyAcsCpeParamStru.IsAcsContacted) {
+	        HandleZeroCfg(&SoapClient);
+	    }*/
+	    {
+	        
+	        if (SY_SUCCESS == SendInform(&SoapClient, (void*)SY_EVENT_BOOT))
+	        {
+	            DPrint("1 boot register OK\n");
+	            SendEmptyPost(&SoapClient);
+	        }
+	        else {
+	            soap_end(&SoapClient);
+	        }
+	    }
+	    gsyGlobalParmStru.SessionState = SY_SESSION_IDLE;
+	    gSyIsFirst = 1;
+	    RecvRPC(&SoapClient);
+	    gSyIsFirst = 0;
+	}
     DPrint("Run the periodic thread");
-    
+   #if 0 
     nRet = pthread_create(&tid, 0, ProcIfmThread, (void*)&SoapClient);
     if (0 != nRet)
     {
@@ -2485,7 +2541,7 @@ LOCAL void* ClientThread(void* data)
     {
         pthread_detach(tid);
     }
-
+	#endif
     SyGetNodeValue("Device.ManagementServer.PeriodicInformInterval", InformInterval);
     gSyHeartInterval = atoi(InformInterval);
     DPrint("Period interval:%d\n", gSyHeartInterval);
@@ -2503,7 +2559,12 @@ LOCAL void* ClientThread(void* data)
         if ((nUptimeCurrent - nUptimeLast) >= gSyHeartInterval)
         {
             //DPrint("time out. Report Period.");
-            SendHeartIfm(&SoapClient);
+            char szBuf[16] = {0};
+			SyGetNodeValue("Device.ManagementServer.PeriodicInformEnable", szBuf) ;
+			if(atoi(szBuf) == 1){
+				addEvent(EVENT_PERIODIC);
+			}
+           // SendHeartIfm(&SoapClient);
             nUptimeLast = nUptimeCurrent;
 
             VPrint("reference uptime is %d.", nUptimeLast);
@@ -2659,7 +2720,7 @@ LOCAL void* ServerThread(void* data)
 
 LOCAL void *ProcIfmThread(void* data)
 {
-
+#if 0
     struct soap SoapClient;
 
     DO;
@@ -2683,6 +2744,7 @@ LOCAL void *ProcIfmThread(void* data)
         sleep(2);
     }
     DONE;
+#endif
     return NULL;
 }
 
@@ -2851,25 +2913,34 @@ bool CwmpMain()
     {
         StartupInfoFlag = 2;
         fclose(lishiFp);
+		#if 0
         struct sockmsg sockMsg;
         sprintf(sockMsg.msg, "startupInfo");
         sockMsg.len = strlen(sockMsg.msg);
         strcpy(sockMsg.user, "tr069");
         Send2CmdProcThd(&sockMsg);
+		#endif
+
+		addEvent(EVENT_STARTUPINFO);
     }
 
     /* 运维APK启动开机信息收集进这里启动数据收集 */
     if (NULL != (lishiFp = fopen(SY_TS_INFO_FLAG, "rb")))
     {
         fclose(lishiFp);
+		#if 0
         struct sockmsg sockMsg;
         memset(&sockMsg, 0x00, sizeof(struct sockmsg));
         sprintf(sockMsg.msg, "tsAPKStartupInfo");
         sockMsg.len = strlen(sockMsg.msg);
         strcpy(sockMsg.user, "tr069");
         Send2CmdProcThd(&sockMsg);
+		#endif
+		
+		addEvent(EVENT_TSAPK_STARTUPINFO);
     }
     sleep(1);
+	#if 0
     extern int Send2CmdProcThd(struct sockmsg *msg);
     struct sockmsg sendMsg;
     memset(&sendMsg, 0x00, sizeof(sendMsg));
@@ -2879,8 +2950,9 @@ bool CwmpMain()
         strcpy(sendMsg.user, "tr069");
         Send2CmdProcThd(&sendMsg);
     }
-    DONE;
-
+	#endif
+	addEvent(EVENT_INITIALIZE);
+    DONE;	
     return true;
 }
 

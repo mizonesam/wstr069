@@ -18,6 +18,7 @@
 #include "syNATStun.h"
 #include "syNATUdp.h"
 #include "syCwmpCommon.h"
+#include "syCwmpTaskQueue.h"
 //#include "sha1.h"
 
 /// define a structure to 22hold a stun address 
@@ -1607,6 +1608,7 @@ stunActiveNofify()
 		if (NULL != pFile) {
 			fwrite(cValueChangeBufs, 1, strlen(cValueChangeBufs), pFile);
 			fclose(pFile);
+			addEvent(EVENT_VALUE_CHANGE);
 		} else {
 			EPrint("open %s Error...\n", SY_VALUE_CHANGE_INFORM_FLAG_0);
 			return SY_FAILED;

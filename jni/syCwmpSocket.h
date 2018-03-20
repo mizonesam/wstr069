@@ -42,6 +42,11 @@
 
 #define SY_WRITE_END         -1
 
+#define QU "\""
+#define BR "{"
+#define RB "}"
+
+
 typedef enum
 {
     /*Network*/
@@ -188,5 +193,9 @@ int RevCmdStart();
 int SendDataToIptv(struct sockmsg *pMsg, short port);
 int Send2zeroApk(int flag);
 int startLogcat(char *cmd);
+void HandleConnectRequest();
+void HandleDownload(char *pos);
+void HandleUpload(char* pos);
+void HandleUtil(pthread_t *threadid, iFunction func, const char *key);
 
 #endif

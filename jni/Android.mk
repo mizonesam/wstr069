@@ -58,10 +58,12 @@ LOCAL_SRC_FILES:= main.c \
     $(WSNAME)Fault.c \
     $(WSNAME)Http.c \
     $(WSNAME)Crypto.c \
+	$(WSNAME)TaskQueue.c \
     thirdLib/xml/$(WSNAME)Xml.c \
     NAT/syNATClient.c \
     NAT/syNATStun.c \
     NAT/syNATUdp.c \
+
     
 LOCAL_CFLAGS += -static -std=c99
 

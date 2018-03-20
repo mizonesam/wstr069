@@ -23,7 +23,7 @@
 #include "NAT/syNATClient.h"
 #include "syCwmpSocket.h"
 #include "syCwmpLog.h"
-
+#include "syCwmpTaskQueue.h"
 extern int gSyCmdStrListLen;
 extern syCmdStrStu gSyCmdStrList[];
 
@@ -1245,6 +1245,7 @@ int __SetParaValues(struct soap *soap,
         {
             fwrite(szValueChangeBufs, 1, strlen(szValueChangeBufs), pFile);
             fclose(pFile);
+			addEvent(EVENT_VALUE_CHANGE);
         }
         else
         {
@@ -1283,10 +1284,11 @@ int __SetParaValues(struct soap *soap,
             if ((1 == gSyEnableMsgLog) && (1 == gSyIsMsg))
             {
                 gSyMsgLogPeriodRunning = 1;
-                sprintf(sockMsg.msg, "PeriodMsgLog");
+               /* sprintf(sockMsg.msg, "PeriodMsgLog");
                 sockMsg.len = strlen(sockMsg.msg);
                 strcpy(sockMsg.user, "tr069");
-                Send2CmdProcThd(&sockMsg);
+                Send2CmdProcThd(&sockMsg);*/
+                addEvent(EVENT_LOGPERIODIC);
             }
         }
         else
@@ -1319,36 +1321,41 @@ int __SetParaValues(struct soap *soap,
         if (1 == gSyIpPing)
         {
             gSyIpPing = 0;
-            sprintf(sockMsg.msg, "IPPingDiagnostics");
+            /*sprintf(sockMsg.msg, "IPPingDiagnostics");
             sockMsg.len = strlen(sockMsg.msg);
             strcpy(sockMsg.user, "tr069");
-            Send2CmdProcThd(&sockMsg);
+            Send2CmdProcThd(&sockMsg);*/
+            AddEvent(EVENT_PING, "IPPingDiagnostics");
             // TODO:返回给服务器以内部错误
         }
         if (1 == gSyTraceRoute)
         {
             gSyTraceRoute = 0;
+			/*
             sprintf(sockMsg.msg, "TraceRouteDiagnostics");
             sockMsg.len = strlen(sockMsg.msg);
             strcpy(sockMsg.user, "tr069");
-            Send2CmdProcThd(&sockMsg);
+            Send2CmdProcThd(&sockMsg);*/
+            AddEvent(EVENT_TRACEROUTE, "TraceRouteDiagnostics");
         }
 
         if (1 == gSyBandwidthDiagnostics)
         {
             gSyBandwidthDiagnostics = 0;
-            sprintf(sockMsg.msg, "BandwidthDiagnostics");
+           /* sprintf(sockMsg.msg, "BandwidthDiagnostics");
             sockMsg.len = strlen(sockMsg.msg);
             strcpy(sockMsg.user, "tr069");
-            Send2CmdProcThd(&sockMsg);
+            Send2CmdProcThd(&sockMsg);*/
+            AddEvent(EVENT_BANDWIDTH, "BandwidthDiagnostics");
         }
         if (1 == gSyPacketCapture)
         {
             gSyPacketCapture = 0;
-            sprintf(sockMsg.msg, "PacketCapture");
+            /*sprintf(sockMsg.msg, "PacketCapture");
             sockMsg.len = strlen(sockMsg.msg);
             strcpy(sockMsg.user, "tr069");
-            Send2CmdProcThd(&sockMsg);
+            Send2CmdProcThd(&sockMsg);*/
+            AddEvent(EVENT_CAPPACKET,"PacketCapture");
         }
 
         if (1 == gSyErrorCodeManage)
@@ -1802,7 +1809,7 @@ int __DeleteObject(struct soap *soap, char *ObjectName, char *ParameterKey,
 int __Reboot(struct soap *soap, char *CommandKey, struct cwmp__RebootResponse *res)
 {
     WPrint("Not implement!\n");
-
+	addEvent(EVENT_REBOOT);
     return SY_SUCCESS;
 }
 
@@ -1837,23 +1844,33 @@ int __Download(struct soap *soap,
     switch(szFileType)
     {
     case DOWNLOAD_FIRMWARE_UPGRADE_IMAGE:
+		/*
         sockMsg.len = sprintf(sockMsg.msg, "%s&%c&%s&%s&%s&%d&%s&%d&%s&%s&", SyMethodTypeToStr(SY_DOWNLOAD),
                 szFileType, tmpUrl, Username, Password, FileSize, TargetFileName,
                 DelaySeconds, SuccessURL, FailureURL);
         strcpy(sockMsg.user, "tr069");
-        Send2CmdProcThd(&sockMsg);
+        Send2CmdProcThd(&sockMsg);*/
+        sockMsg.len = sprintf(sockMsg.msg, "%c&%s&%s&%s&%d&%s&%d&%s&%s&",
+                szFileType, tmpUrl, Username, Password, FileSize, TargetFileName,
+                DelaySeconds, SuccessURL, FailureURL);
         res->StartTime = SyGetCurrentTime();
         res->CompleteTime = res->StartTime + 10;
+		AddEvent(EVENT_DOWNLOAD, sockMsg.msg);
         break;
 
     case DOWNLOAD_VERDOR_CONFIGURATION_FILE:
+		/*
         sockMsg.len = sprintf(sockMsg.msg, "%s&%c&%s&%s&%s&%d&%s&%d&%s&%s&", SyMethodTypeToStr(SY_DOWNLOAD),
                 szFileType, tmpUrl, Username, Password, FileSize, TargetFileName,
                 DelaySeconds, SuccessURL, FailureURL);
         strcpy(sockMsg.user, "tr069");
-        Send2CmdProcThd(&sockMsg);
+        Send2CmdProcThd(&sockMsg);*/
+        sockMsg.len = sprintf(sockMsg.msg, "%c&%s&%s&%s&%d&%s&%d&%s&%s&",
+                szFileType, tmpUrl, Username, Password, FileSize, TargetFileName,
+                DelaySeconds, SuccessURL, FailureURL);
         res->StartTime = SyGetCurrentTime();
         res->CompleteTime = res->StartTime + 5;
+		AddEvent(EVENT_DOWNLOAD, sockMsg.msg);
         break;
     default:
         break;
@@ -1887,29 +1904,39 @@ int __Upload(struct soap *soap,
     switch(szFileType)
     {
     case UPLOAD_VERDOR_CONFIGURATION_FILE:
+		#if 0
         sockMsg.len = sprintf(sockMsg.msg, "%s&%c&%s&%s&%s&%d&", SyMethodTypeToStr(SY_UPLOAD),
                 szFileType, tmpUrl, Username, Password, DelaySeconds);
 
         strcpy(sockMsg.user, "tr069");
         Send2CmdProcThd(&sockMsg);
+		#endif
+		sockMsg.len = sprintf(sockMsg.msg, "%c&%s&%s&%s&%d&",
+                szFileType, tmpUrl, Username, Password, DelaySeconds);
         res->StartTime = SyGetCurrentTime();
         res->CompleteTime = res->StartTime + 10;
+		AddEvent(EVENT_UPLOAD, sockMsg.msg);
         break;
 
     case UPLOAD_VERDOR_LOG_FILE:
+		#if 0
         sockMsg.len = sprintf(sockMsg.msg, "%s&%c&%s&%s&%s&%d&", SyMethodTypeToStr(SY_UPLOAD),
                 szFileType, tmpUrl, Username, Password, DelaySeconds);
 
         strcpy(sockMsg.user, "tr069");
         Send2CmdProcThd(&sockMsg);
+		#endif
+		sockMsg.len = sprintf(sockMsg.msg, "%c&%s&%s&%s&%d&",
+                szFileType, tmpUrl, Username, Password, DelaySeconds);
         res->StartTime = SyGetCurrentTime();
-        res->CompleteTime = res->StartTime + 5;
+        res->CompleteTime = res->StartTime + 5;		
+		AddEvent(EVENT_UPLOAD, sockMsg.msg);
         break;
 
     default:
         break;
     }
-
+	
     DONE;
     return SY_SUCCESS;
 }
@@ -1918,7 +1945,7 @@ int __FactoryReset(struct soap *soap, void *req,
                        struct cwmp__FactoryResetResponse *res)
 {
     WPrint("Not implement!\n");
-
+	addEvent(EVENT_FACTORY_RESET);
     return SY_SUCCESS;
 }
 

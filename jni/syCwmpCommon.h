@@ -28,6 +28,8 @@ typedef unsigned char uchar,int8;
 typedef bool (*funPtrSetData)(const char*, char*);
 typedef bool (*funPtrGetData)(const char*, char*, size_t);
 typedef bool (*funPtrNotify)(int, char*);
+typedef void* (*iFunction)(void *);
+
 
 #define SY_TEST
 
