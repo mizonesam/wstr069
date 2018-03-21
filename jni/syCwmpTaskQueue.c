@@ -177,11 +177,11 @@ void* RunThread(void * lParam){
 				case EVENT_REBOOT:
 					//保存重启标记到数据中心
 					g_notify(REBOOT, "");
-					gStop = 1;
+					//gStop = 1;
 					break;
 				case EVENT_FACTORY_RESET:
 					g_notify(FACTORYRESET, "");
-					gStop = 1;
+					//gStop = 1;
 					break;
 				case EVENT_DOWNLOAD:
 					if(0 != taskmsg.len)
@@ -287,8 +287,8 @@ void* RunThread(void * lParam){
 				pthread_mutex_unlock(&lock);
 			}
 		}	
-		if(gStop)
-			vector_free(g_vecEvent);
+		//if(gStop)
+		//	vector_free(g_vecEvent);
 		WaitEvent(&cond, &mtx, &gisSignal, -1);
 	}
 	
