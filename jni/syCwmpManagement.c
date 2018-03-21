@@ -367,6 +367,8 @@ LOCAL int FreeParamList(void)
     return SY_SUCCESS;
 }
 
+extern lua_State* luaVM;
+
 LOCAL int MallocParaList(struct soap* soap,
                             int type,
                             const char* flagFile1,
@@ -429,6 +431,11 @@ LOCAL int MallocParaList(struct soap* soap,
         gSyParamList->__ptrParameterValueStruct[i].Type = Strdup(soap, tmpStr);
         //DPrint("type:%s\n", gSyParamList->__ptrParameterValueStruct[i].Type);
     }
+
+#ifdef SUPPORT_LUA
+	callLuaFunc(luaVM, "updateParam", "iippppp>", nSize, 0, gSyParamList, &gSyDeviceInfoStu, &gSyManagementServerStu, &gSyLANStu, &gSyServiceInfoStu);
+	
+#else
     DPrint("gSyDeviceInfoStu.DeviceSummary:%s\n", gSyDeviceInfoStu.DeviceSummary);
     gSyParamList->__ptrParameterValueStruct[SY_INFORM_DEVICE_SUMMARY].Value =
         Strdup(soap, gSyDeviceInfoStu.DeviceSummary);
@@ -494,7 +501,7 @@ LOCAL int MallocParaList(struct soap* soap,
     gSyParamList->__ptrParameterValueStruct[SY_INFORM_ADDRESSINGTYPE].Value =
             Strdup(soap, gSyLANStu.AddressingType);
     */
-
+#endif
 
     if(flagFile1 != NULL)
     {
@@ -583,6 +590,9 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
     DPrint("event type:%d\n", nType);
 
     gSyEvent = (struct _EventStruct*)malloc(sizeof(struct _EventStruct));
+#ifdef SUPPORT_LUA
+	callLuaFunc(luaVM, "updateEvent", "ipppp>", nType, gSyEvent, &gSyLANStu, &gSyManagementServerStu, &gsyAcsCpeParamStru);
+#else	
     eventNum = 1;
     if (SY_EVENT_BOOT == nType)
     {
@@ -729,7 +739,7 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
             soap_strdup(soap, gSendEvent[nType].CommandKey);
     }
     gSyEvent->__size = eventNum;
-
+#endif
     DONE;
 
 }
@@ -2610,6 +2620,7 @@ LOCAL void* ServerThread(void* data)
     m = soap_bind(&SoapServer, NULL, SY_CWMP_CLIENT_PORT, 100);
     if (m < 0)
     {
+    	DPrint("exit sytr069");
         soap_print_fault(&SoapServer, stderr);
         exit(-1);
     }
@@ -2872,6 +2883,7 @@ LOCAL int HandleZeroCfg(struct soap *soap)
 bool CwmpMain()
 {
     DO;
+	DPrint("start main");
     int ret = 0;
     if (SY_FAILED == SyInitConfigXml()) {
         DPrint("Init Config Xml Failed\n");
