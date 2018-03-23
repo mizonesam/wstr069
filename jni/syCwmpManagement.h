@@ -13,7 +13,7 @@
 #define SYCWMPMANAGEMENT_H
 
 //#define SY_CWMP_CLIENT_PORT         22344
-#define SY_CWMP_CLIENT_PORT          6549
+#define SY_CWMP_CLIENT_PORT          6547
 
 
 #define SY_CPE_REQUEST_ID_LENGTH    16

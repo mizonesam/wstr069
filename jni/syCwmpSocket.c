@@ -348,191 +348,190 @@ char* ParseJSON(cJSON *json, char *dstName, char *result);
 
 
 void* CmdProcThread(void* data)
-	{
-		struct timeval timeout;
-	
-		DO;
-		while (0 == gExit)
-		{
-	
-		int i = 0;
-		int b_val = 1;
-		int nRet = -1;
-		int fdmax = -1;
-		int length = 0;
-		int serverfd = -1;
-		int clientfd[MAX_CLIENT] = {0};
-		fd_set readfds;
-		struct sockaddr_in serverAddr;
-	
-		memset(clientfd, 0xFF, sizeof(clientfd));
-		memset(&serverAddr, 0, sizeof(serverAddr));
-		serverAddr.sin_family = AF_INET;
-		serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-		serverAddr.sin_port = htons(CMD_PROC_PORT);
-	
-		
-			serverfd = socket(PF_INET, SOCK_STREAM, 0);
-			setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, (char *)&b_val, sizeof(b_val));
-			nRet = bind(serverfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
-			DPrint("serverfd:%d, bind result:%d\n", serverfd, nRet);
-			if (nRet < 0) {
-				DPrint("bind failed.\n");
-				SyCloseSocket(serverfd);
-				usleep(1000 * 1000);
-				continue;
-			}
-			nRet = listen(serverfd, MAX_CLIENT);
-			DPrint("listen result:%d\n", nRet);
-			if (nRet < 0) {
-				DPrint("listen failed.\n");
-				SyCloseSocket(serverfd);
-				usleep(1000 * 1000);
-				continue;
-			}
-		
-		fdmax = serverfd;
-		
-		while (0 == gExit)
-		{
-			FD_ZERO(&readfds);
-			FD_SET(serverfd, &readfds);
-			for(i = 0; i < MAX_CLIENT; i++)
-			{
-				if (clientfd[i] != -1)
-				{
-					if (clientfd[i] > fdmax)
-						fdmax = clientfd[i];
-					FD_SET(clientfd[i], &readfds);
-				}
-			}
-			timeout.tv_sec = 3;
-			timeout.tv_usec = 0;
-			nRet = select(fdmax + 1, &readfds, NULL, NULL, (struct timeval *)&timeout);
-			if (nRet <= 0) {
-				if(-1 == nRet) PERROR("select");
-				continue;
-			}
-			
-			if (FD_ISSET(serverfd, &readfds) > 0) {
-				struct sockaddr_in RecvAddr;
-				int nLen = sizeof(RecvAddr);
-				memset(&RecvAddr, 0, sizeof(RecvAddr));
-				int newfd = accept(serverfd, (struct sockaddr *)&RecvAddr, &nLen);
-	
-				struct in_addr peerAddr;
-				peerAddr.s_addr = 0;
+{
+    struct timeval timeout;
+
+    DO;
+
+    int i = 0;
+    int b_val = 1;
+    int nRet = -1;
+    int fdmax = -1;
+    int length = 0;
+    int serverfd = -1;
+    int clientfd[MAX_CLIENT] = {0};
+    fd_set readfds;
+    struct sockaddr_in serverAddr;
+
+    memset(clientfd, 0xFF, sizeof(clientfd));
+    memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    serverAddr.sin_port = htons(CMD_PROC_PORT);
+
+    do {
+        serverfd = socket(PF_INET, SOCK_STREAM, 0);
+        setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, (char *)&b_val, sizeof(b_val));
+        nRet = bind(serverfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
+        DPrint("serverfd:%d, bind result:%d\n", serverfd, nRet);
+        if (nRet < 0) {
+            DPrint("bind failed.\n");
+            SyCloseSocket(serverfd);
+            usleep(1000 * 1000);
+            continue;
+        }
+        nRet = listen(serverfd, MAX_CLIENT);
+        DPrint("listen result:%d\n", nRet);
+        if (nRet < 0) {
+            DPrint("listen failed.\n");
+            SyCloseSocket(serverfd);
+            usleep(1000 * 1000);
+            continue;
+        }
+    
+    
+	    fdmax = serverfd;
+	    
+	    while (0 == gExit)
+	    {
+	        FD_ZERO(&readfds);
+	        FD_SET(serverfd, &readfds);
+	        for(i = 0; i < MAX_CLIENT; i++)
+	        {
+	            if (clientfd[i] != -1)
+	            {
+	                if (clientfd[i] > fdmax)
+	                    fdmax = clientfd[i];
+	                FD_SET(clientfd[i], &readfds);
+	            }
+	        }
+	        timeout.tv_sec = 3;
+	        timeout.tv_usec = 0;
+	        nRet = select(fdmax + 1, &readfds, NULL, NULL, (struct timeval *)&timeout);
+	        if (nRet <= 0) {
+	            if(-1 == nRet) PERROR("select");
+	            continue;
+	        }
+	        
+	        if (FD_ISSET(serverfd, &readfds) > 0) {
+	    		struct sockaddr_in RecvAddr;
+	    		int nLen = sizeof(RecvAddr);
+	    		memset(&RecvAddr, 0, sizeof(RecvAddr));
+	            int newfd = accept(serverfd, (struct sockaddr *)&RecvAddr, &nLen);
+
+	            struct in_addr peerAddr;
+	    		peerAddr.s_addr = 0;
 				peerAddr.s_addr = RecvAddr.sin_addr.s_addr;
 				DPrint("Peer ip %s:%d, Net-Order(BE) port=%d\n",
 						inet_ntoa(peerAddr), ntohs(RecvAddr.sin_port), RecvAddr.sin_port);
-	
-				gSyTR069Sockfd = newfd;
-				for(i = 0; i < MAX_CLIENT; i++) {
-					if (clientfd[i] == -1) {
-						clientfd[i] = newfd;
-						DPrint("New connection coming.[%d]\n", newfd);
-						break;
-					}
-				}
-				
-				continue;
-			}
-	
-			for(i = 0; i < MAX_CLIENT; i++) {
-				if (-1 == clientfd[i]) {
-					continue;
-				}
-	
-				if (!(FD_ISSET(clientfd[i], &readfds) > 0)) {
-					continue;
-				}
-	
-				memset(&gSyRecvSockmsg, 0, sizeof(gSyRecvSockmsg));
-				length = recv(clientfd[i], &gSyRecvSockmsg, sizeof(gSyRecvSockmsg), 0);
-	
-				switch(length) {
-				case -1:
-	
-					sleep(1);
-					DPrint("Recv():%s", strerror(errno));
-					break;
-				case 0:
-				
-					if (clientfd[i] == gSyTR069Sockfd)
-					{
-						gSyTR069Sockfd = -1;
-					}
-					SyCloseSocket(clientfd[i]);
-					clientfd[i] = -1;
-					DPrint("Closed by peer.");
-					break;
-				case sizeof(struct sockmsg):
-	
-					if(strcmp(gSyRecvSockmsg.user, "tr069") == 0)
-					{
-						DispatchCommand(gSyRecvSockmsg.msg, gSyRecvSockmsg.len);
-					}
-					else if (strcmp(gSyRecvSockmsg.user, "onekeyCK") == 0)
-					{
-						DispatchOneKeyCK(gSyRecvSockmsg.msg, gSyRecvSockmsg.len);
-						if((send(clientfd[i], &gSySendSockmsgToOneKeyCK, sizeof(gSySendSockmsgToOneKeyCK), 0)) < 0)
-						{
-							DPrint("send() failed\n");
-						}
-					}
-					else if (strcmp(gSyRecvSockmsg.user, "IPTV") == 0)
-					{
-						//运作iptv的请求
-						HandleIptvReq(&gSyRecvSockmsg);
-						if ((0 == gSyIsTmStart) && (SY_OP_START != gSyRecvSockmsg.type)) {
-							DPrint("No Start..\n");
-							continue;
-						}
-						if(-1 == send(clientfd[i], &gSySendSockmsg, sizeof(gSySendSockmsg), MSG_NOSIGNAL)) {
-	
-							DPrint("Send Error\n");
-						}
-						//DPrint("gSyRecvSockmsg.type:%d\n", gSyRecvSockmsg.type);
-						
-					}
-					break;
-				default: {
-					
-					char jsonBuf[2048] = {0};
-					strncpy(jsonBuf, (char *)&gSyRecvSockmsg, sizeof(jsonBuf));
-					/* json 数据*/
-					if (NULL != strstr(jsonBuf, "{"))
-					{
-						HandleJson(clientfd[i], jsonBuf);
-					}
-					/* 零配置APK发送过来的零配置消息 */
-					else
-					{
-						char recvBuf[64] = {0};
-						sscanf(((char*)&gSyRecvSockmsg), "%[^:]:", recvBuf);
-						if (0 == strcmp(recvBuf, "zeroSet"))
-						{
-							if((send(clientfd[i], "ok", 2, 0)) < 0)
-							{
-								DPrint("send data to zero apk failed.\n");
-							}
-							HandleZeroApkReq();
-						}
-						else
-						{
-							DPrint("malformed! recv.msg:%s\n", gSyRecvSockmsg.msg);
-						}
-					}
-					break;
-				}
-				}
-			}
-		}
-			}
-		DONE;
-		return NULL;
-	}
 
+	            gSyTR069Sockfd = newfd;
+	            for(i = 0; i < MAX_CLIENT; i++) {
+	                if (clientfd[i] == -1) {
+	                    clientfd[i] = newfd;
+	                    DPrint("New connection coming.[%d]\n", newfd);
+	                    break;
+	                }
+	            }
+	            
+	            continue;
+	        }
+
+	        for(i = 0; i < MAX_CLIENT; i++) {
+	            if (-1 == clientfd[i]) {
+	                continue;
+	            }
+
+	            if (!(FD_ISSET(clientfd[i], &readfds) > 0)) {
+	                continue;
+	            }
+
+	            memset(&gSyRecvSockmsg, 0, sizeof(gSyRecvSockmsg));
+	            length = recv(clientfd[i], &gSyRecvSockmsg, sizeof(gSyRecvSockmsg), 0);
+
+	            switch(length) {
+	            case -1:
+
+	                sleep(1);
+	                DPrint("Recv():%s", strerror(errno));
+	                break;
+	            case 0:
+	            
+	                if (clientfd[i] == gSyTR069Sockfd)
+	                {
+	                    gSyTR069Sockfd = -1;
+	                }
+	                SyCloseSocket(clientfd[i]);
+	                clientfd[i] = -1;
+	                DPrint("Closed by peer.");
+	                break;
+	            case sizeof(struct sockmsg):
+
+	                if(strcmp(gSyRecvSockmsg.user, "tr069") == 0)
+	                {
+	                    DispatchCommand(gSyRecvSockmsg.msg, gSyRecvSockmsg.len);
+	                }
+	                else if (strcmp(gSyRecvSockmsg.user, "onekeyCK") == 0)
+	                {
+	                    DispatchOneKeyCK(gSyRecvSockmsg.msg, gSyRecvSockmsg.len);
+	                    if((send(clientfd[i], &gSySendSockmsgToOneKeyCK, sizeof(gSySendSockmsgToOneKeyCK), 0)) < 0)
+	                    {
+	                        DPrint("send() failed\n");
+	                    }
+	                }
+	                else if (strcmp(gSyRecvSockmsg.user, "IPTV") == 0)
+	                {
+	                    //运作iptv的请求
+	                    HandleIptvReq(&gSyRecvSockmsg);
+	                    if ((0 == gSyIsTmStart) && (SY_OP_START != gSyRecvSockmsg.type)) {
+	                        DPrint("No Start..\n");
+	                        continue;
+	                    }
+	                    if(-1 == send(clientfd[i], &gSySendSockmsg, sizeof(gSySendSockmsg), MSG_NOSIGNAL)) {
+
+	                        DPrint("Send Error\n");
+	                    }
+	                    //DPrint("gSyRecvSockmsg.type:%d\n", gSyRecvSockmsg.type);
+	                    
+	                }
+	                break;
+	            default: {
+	                
+	                char jsonBuf[2048] = {0};
+	                strncpy(jsonBuf, (char *)&gSyRecvSockmsg, sizeof(jsonBuf));
+	                /* json 数据*/
+	                if (NULL != strstr(jsonBuf, "{"))
+	                {
+	                    HandleJson(clientfd[i], jsonBuf);
+	                }
+	                /* 零配置APK发送过来的零配置消息 */
+	                else
+	                {
+	                    char recvBuf[64] = {0};
+	                    sscanf(((char*)&gSyRecvSockmsg), "%[^:]:", recvBuf);
+	                    if (0 == strcmp(recvBuf, "zeroSet"))
+	                    {
+	                        if((send(clientfd[i], "ok", 2, 0)) < 0)
+	                        {
+	                            DPrint("send data to zero apk failed.\n");
+	                        }
+	                        HandleZeroApkReq();
+	                    }
+	                    else
+	                    {
+	                        DPrint("malformed! recv.msg:%s\n", gSyRecvSockmsg.msg);
+	                    }
+	                }
+	                break;
+	            }
+	            }
+	        }
+	    }
+	}while (0 == gExit);
+
+    DONE;
+    return NULL;
+}
 
 
 int CreateCliSocket(int port, int type, int timeout)
@@ -1472,6 +1471,7 @@ void HandleIptvReq(struct sockmsg *pMsg)
 #endif
         case DIAGNOSTICSSTATE:
             SySetNodeValue(gSyCmdStrList[msg.cmd].cmdStr,msg.msg);
+			#if 0
             pFile = fopen(SY_DIAGNOSTICS_INFORM_FLAG, "wb");
             if (NULL != pFile) {
                 fclose(pFile);
@@ -1479,6 +1479,8 @@ void HandleIptvReq(struct sockmsg *pMsg)
             else {
                 PERROR(SY_DIAGNOSTICS_INFORM_FLAG" fopen:");
             }
+			#endif
+			addEvent(EVENT_DIAGNOSTICS);
             break;
         case IGMPINFO:
         case HTTPINFO:
@@ -1818,7 +1820,6 @@ bool SetValue(const char* path, char* value)
     return ret;
 }
 
-extern lua_State* luaVM;
 
 /*
  * 从apk侧获取数据
@@ -1834,12 +1835,7 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
     DPrint("get <%s>", path);
 
     memset(&sendMsg, 0x00, sizeof(sendMsg));
-#ifdef SUPPORT_LUA
-	char* path1 = malloc(sizeof(char)*200);
-	memset(path1, 0x00, 200);
-	strcpy(path1, path);
-	callLuaFunc(luaVM, "getvalue", "ppi>", path1, value, sizeOfValue);
-#else
+
     for(i = 0; i<gSyCmdStrListLen && gSyCmdStrList[i].cmd!=-1; i++)
     {
         if(!strcmp(gSyCmdStrList[i].cmdStr, path))
@@ -1857,7 +1853,6 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
             EPrint("getParamV() failed.");
         }
     }
-#endif
     DONE;
 
     return ret;

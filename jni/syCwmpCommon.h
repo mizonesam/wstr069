@@ -21,7 +21,6 @@
 
 #include "syCwmpUtil.h"
 #include "stdsoap2.h"
-#include "sylualib.h"
 
 typedef unsigned char uchar,int8;
 //typedef unsigned char int8;
@@ -33,7 +32,7 @@ typedef void* (*iFunction)(void *);
 
 
 #define SY_TEST
-#define SUPPORT_LUA
+
 #define SY_GD_TR069
 
 #define TAG "libcwmp"
