@@ -834,10 +834,7 @@ int UpdateNetPara(void)
 
 	while (1){
 		memset(pTmpBuf, 0x00, SY_BUFFER_LENGTH);
-		if (!GetValue("Device.LAN.IPAddress", pTmpBuf, sizeOfBuf))
-        {
-            SyGetIPAddr(pTmpBuf);
-        }
+		GetValue("Device.LAN.IPAddress", pTmpBuf, sizeOfBuf);
 		if (strlen(pTmpBuf) != 0 && strcmp(pTmpBuf, "0.0.0.0") != 0){
 			break;
 		}

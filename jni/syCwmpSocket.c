@@ -1472,7 +1472,6 @@ void HandleIptvReq(struct sockmsg *pMsg)
 #endif
         case DIAGNOSTICSSTATE:
             SySetNodeValue(gSyCmdStrList[msg.cmd].cmdStr,msg.msg);
-			#if 0
             pFile = fopen(SY_DIAGNOSTICS_INFORM_FLAG, "wb");
             if (NULL != pFile) {
                 fclose(pFile);
@@ -1480,8 +1479,6 @@ void HandleIptvReq(struct sockmsg *pMsg)
             else {
                 PERROR(SY_DIAGNOSTICS_INFORM_FLAG" fopen:");
             }
-			#endif
-			addEvent(EVENT_DIAGNOSTICS);
             break;
         case IGMPINFO:
         case HTTPINFO:
