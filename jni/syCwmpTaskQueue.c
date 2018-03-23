@@ -1,3 +1,5 @@
+#include <jni.h>
+
 #include "syCwmpTaskQueue.h"
 #include "syCwmpCommon.h"
 #include "syCwmpSocket.h"
@@ -13,6 +15,7 @@ extern pthread_t gSyDebugInfoTid;
 extern pthread_t gSyStartupInfoTid;
 extern pthread_t gSyTsAPKDebugThreadId;
 extern pthread_t gSyTsAPKStartupThreadId;
+extern JavaVM*   jvm;
 
 extern void* syTSApkStartupInfoThread(void *data);
 extern void* syTSApkDebugInfoThread(void *data);
@@ -138,8 +141,9 @@ void AddEvent(int nEventID,const char* msg){
 	pthread_cond_signal(&cond);
 	pthread_mutex_unlock( &mtx );
 }
+
 void Start(){
-	DPrint("task queue init: %d\n", gThread);
+	DPrint("task queue init: %d\n", (int)gThread);
 	if(gThread == 0){
 		pthread_mutexattr_t attr;
 		pthread_mutexattr_init(&attr);
@@ -161,6 +165,8 @@ void Start(){
 
 void* RunThread(void * lParam){
 	DPrint("[%s]--->\n",__FUNCTION__);
+	JNIEnv* env = NULL;
+	(*jvm)->AttachCurrentThread(jvm, &env, NULL);
 	while(0 == gStop){
 		int nCnt = 0;
 		{
@@ -169,7 +175,7 @@ void* RunThread(void * lParam){
 			pthread_mutex_unlock(&lock);
 		}
 		DPrint("nCnt:%d\n",nCnt);
-		while(nCnt > 0 && 0 == gStop){
+		while(nCnt > 0){
 			TASKMSG taskmsg;
 			taskmsg = pop_back(g_vecEvent, 0);
 			DPrint("task queue id: %d\n", taskmsg.cmd);
@@ -242,7 +248,7 @@ void* RunThread(void * lParam){
 						HandleInform((void*)SY_EVENT_VALUE_CHANGE, 0);
 					}
 					break;
-				case EVENT_ERRORCODEMANAGE:
+				case EVENT_ERRORCODE_REPORT:
 					HandleInform((void*)SY_EVENT_X_00E0FC_ErrorCode, 0);
 					break;
 				case EVENT_PERIODIC:
@@ -271,6 +277,7 @@ void* RunThread(void * lParam){
 					break;
 				case EVENT_TMCCHANGEDURL:
 					DPrint("TMC hand out a new URL ,now restart \n");
+					vector_free(g_vecEvent);
 					remove(SY_BOOT_FLAG);
 					exit(1);
 					break;
@@ -288,13 +295,16 @@ void* RunThread(void * lParam){
 			}
 		}	
 		if(gStop)
-			vector_free(g_vecEvent);
+			break;
 		WaitEvent(&cond, &mtx, &gisSignal, -1);
 	}
-	
+	vector_free(g_vecEvent);
 	gThread = 0;
 	pthread_mutex_destroy(&mtx);
 	pthread_cond_destroy(&cond);
 	DPrint("[%s]<---\n",__FUNCTION__);
+	(*jvm)->DetachCurrentThread(jvm);
+	pthread_exit(NULL);
+	
 }
 
