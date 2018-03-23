@@ -26,6 +26,11 @@ LOCAL_MODULE := libpcap
 LOCAL_SRC_FILES := thirdLib/pcap/libpcap.a
 include $(PREBUILT_STATIC_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_MODULE := libluajit
+LOCAL_SRC_FILES := libluajit.a
+include $(PREBUILT_STATIC_LIBRARY)
+include $(CLEAR_VARS)
 
 include $(CLEAR_VARS)
 
@@ -48,6 +53,7 @@ LOCAL_SRC_FILES:= main.c \
     base64.c \
     cJSON.c \
     cJSON_Utils.c \
+    sylualib.c \
     $(WSNAME)Log.c \
     $(WSNAME)LogAndPcap.c \
     $(WSNAME)Server.c \
@@ -64,12 +70,11 @@ LOCAL_SRC_FILES:= main.c \
     NAT/syNATStun.c \
     NAT/syNATUdp.c \
 
-    
 LOCAL_CFLAGS += -static -std=c99
 
 LOCAL_LDFLAGS := -L. -llog -lz -lm
 
-LOCAL_STATIC_LIBRARIES := libcurl libssh2 libsyxml libpcap libcrypto_static
+LOCAL_STATIC_LIBRARIES := libcurl libssh2 libsyxml libpcap libcrypto_static libluajit
 
 #LOCAL_CFLAGS  += -pic -fPIC
 #LOCAL_LDFLAGS += -pic -fPIC

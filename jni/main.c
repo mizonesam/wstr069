@@ -260,6 +260,9 @@ bool NotifyToJava(int key, char* pszValue)
 	return true;
 }
 
+void DPrintL(char* log){
+	DPrint("%s", log);
+}
 
 
 const char* getVer()
@@ -271,10 +274,28 @@ const char* getVer()
 /*
  * cwmp Èë¿Ú
  */
+lua_State* luaVM = NULL;
 
 void* mainly(void* unless)
 {
 	Start();
+#ifdef SUPPORT_LUA
+	luaVM = luaL_newstate();
+	if(luaVM == NULL)
+	{
+		DPrint("open luaVM failed");
+		return false;
+	}
+    luaL_openlibs(luaVM);
+	lua_checkstack(luaVM, 2000);
+	DPrint("Open lua VM");
+	if(luaL_loadfile(luaVM, "/data/beCall.lua") || lua_pcall(luaVM, 0, 0, 0))
+    {
+        DPrint("open lua failed,error is %s", lua_tostring(luaVM, -1));
+        return false;
+    }
+#endif
+	
     if (!CwmpMain()) {
         EPrint("Fatal: CwmpMain occur error.\n");
         return NULL;
