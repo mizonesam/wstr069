@@ -1808,7 +1808,7 @@ int __DeleteObject(struct soap *soap, char *ObjectName, char *ParameterKey,
 
 int __Reboot(struct soap *soap, char *CommandKey, struct cwmp__RebootResponse *res)
 {
-    WPrint("Not implement!\n");
+    //WPrint("Not implement!\n");
 	addEvent(EVENT_REBOOT);
     return SY_SUCCESS;
 }
@@ -1944,7 +1944,7 @@ int __Upload(struct soap *soap,
 int __FactoryReset(struct soap *soap, void *req,
                        struct cwmp__FactoryResetResponse *res)
 {
-    WPrint("Not implement!\n");
+    //WPrint("Not implement!\n");
 	addEvent(EVENT_FACTORY_RESET);
     return SY_SUCCESS;
 }

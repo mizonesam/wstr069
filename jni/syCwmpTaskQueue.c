@@ -88,19 +88,21 @@ void WaitEvent(pthread_cond_t* pCond, pthread_mutex_t* pMtx, int* pisSignal, int
 		}
 	}	
 	pthread_mutex_lock(pMtx);
-	while(*pisSignal == 0)
+	if(*pisSignal == 0)
 	{
+lab:
 		if (timeout != -1)
 			retval = pthread_cond_timedwait(pCond, pMtx, &abstime);
 		else
 			retval = pthread_cond_wait(pCond, pMtx);
+
 		if (retval == EINTR)
-			continue;
+			goto lab;
+
 		if (retval == ETIMEDOUT)
 			retval = 258;//WAIT_TIMEOUT
 		else
 			retval = 0;
-		break;
 	}
 	*pisSignal = 0;
 	pthread_mutex_unlock(pMtx);
@@ -276,10 +278,11 @@ void* RunThread(void * lParam){
 					HandleUtil(&gSyTsAPKDebugThreadId, syTSApkDebugInfoThread, "tsAPKDebugInfo");
 					break;
 				case EVENT_TMCCHANGEDURL:
-					DPrint("TMC hand out a new URL ,now restart \n");
-					vector_free(g_vecEvent);
+					DPrint("TMC hand out a new URL ,regist renew\n");
+					//vector_free(g_vecEvent);
 					remove(SY_BOOT_FLAG);
-					exit(1);
+					//exit(1);
+					AddEvent(EVENT_INITIALIZE);
 					break;
 				default:
 					break;
