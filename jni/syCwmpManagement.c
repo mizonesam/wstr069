@@ -2934,10 +2934,10 @@ bool CwmpMain()
     DO;
     int ret = 0;
 #ifdef 	SY_TEST
-	mxml_node_t *tEvenXmlRootPt = loadConfigXml("system/etc/eventParamList.xml", "data/data/com.android.tm/files/eventParamList.xml", FALSE);
+	mxml_node_t *tEvenXmlRootPt = loadConfigXml(SY_EVENT_XML_PATH, SY_EVENT_XML_PATH_BAK, FALSE);
 	DPrint("load xml result => %s.", tEvenXmlRootPt ? "success" : "failed");
 
-	mxml_node_t *tParamXmlRootPt = loadConfigXml("/system/etc/parameterList.xml", "data/data/com.android.tm/files/parameterListUse.xml", FALSE);
+	mxml_node_t *tParamXmlRootPt = loadConfigXml(SY_PARAM_XML_PATH, SY_PARAM_XML_PATH_BAK, FALSE);
 	DPrint("load xml result => %s.", tParamXmlRootPt ? "success" : "failed");
 
 	if(!tEvenXmlRootPt || !tParamXmlRootPt){
