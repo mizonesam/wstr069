@@ -264,7 +264,11 @@ void DPrintL(char* log){
 	DPrint("%s", log);
 }
 
-
+int myPanic(lua_State* L)
+{
+	DPrint("Lua Function Error info is: %s", lua_tostring(luaVM, -1));
+	return 1;
+}
 const char* getVer()
 {
     return VERSION;
@@ -288,6 +292,7 @@ void* mainly(void* unless)
 	}
     luaL_openlibs(luaVM);
 	lua_checkstack(luaVM, 2000);
+	lua_atpanic(luaVM, myPanic);
 	DPrint("Open lua VM");
 	if(luaL_loadfile(luaVM, "/data/beCall.lua") || lua_pcall(luaVM, 0, 0, 0))
     {

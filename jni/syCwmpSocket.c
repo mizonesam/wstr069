@@ -1890,14 +1890,7 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
     DPrint("get <%s>", path);
 
     memset(&sendMsg, 0x00, sizeof(sendMsg));
-#ifdef SUPPORT_LUA
 
-	char* path1 = malloc(sizeof(char)*200);
-	memset(path1, 0x00, 200);
-	strcpy(path1, path);
-	DPrint("call getvalue");
-	callLuaFunc(luaVM, "getvalue", "ppi>", path1, value, sizeOfValue);
-#else
 #ifdef SY_TEST
 		xml_key_path_t tData;
 	if(getParamForNode(path, &tData)){
@@ -1922,14 +1915,7 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
         }
     }
 #endif
-#endif
-	char* tmpbuf = (char*)malloc(512);
-
-	memset(tmpbuf, 0x00, 512);
-	ret = SyGetNodeValue(path, tmpbuf);
-	DPrint("get %s is %s", path, tmpbuf);
-	strcpy(value, tmpbuf);
-	free(tmpbuf);
+	callLuaFunc(luaVM, "getvalue", "ppi>", path1, value, sizeOfValue);
     DONE;
 
     return ret;
