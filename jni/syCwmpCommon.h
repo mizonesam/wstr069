@@ -85,6 +85,10 @@ typedef void* (*iFunction)(void *);
 #define SY_ETH0                     "eth0"
 #define SY_WLAN0                    "wlan0"
 
+#define TRUE		1
+#define FALSE		0
+#define BOOL		int
+
 #define SY_REPORT_TIMES          3
 
 #define SY_SUCCESS               0
@@ -316,6 +320,5 @@ int GetValueToIptv(const char* path, char* value); // 通过socket从so拿数据
 
 bool SetValue(const char* path, char* value);
 bool GetValue(const char* path, char* value, size_t); // 通过jni从apk拿数据
-
 #endif
 

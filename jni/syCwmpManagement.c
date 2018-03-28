@@ -11,6 +11,8 @@
 ***********************************************************************/
 #include <pthread.h>
 #include <math.h>
+#include <jni.h>
+
 
 #include "cwmp.nsmap"
 #include "soapStub.h"
@@ -21,7 +23,8 @@
 #include "syCwmpUtil.h"
 #include "syCwmpManagement.h"
 #include "syCwmpTaskQueue.h"
-#include <jni.h>
+#include "eventParse.h"
+#include "paramParse.h"
 
 extern int StartupInfoFlag;
 extern int zeroConfigFlag;
@@ -389,7 +392,7 @@ LOCAL int MallocParaList(struct soap* soap,
     memset(tmpType, 0, sizeof(tmpType));
     memset(tmpStr, 0, sizeof(tmpStr));
 
-    //FreeParamList();
+    FreeParamList();
 
     if (NULL != gSyParamList)
     {
@@ -409,6 +412,11 @@ LOCAL int MallocParaList(struct soap* soap,
     {
         informSize3 = GetInformNum(flagFile3);
     }
+#ifdef SY_TEST
+	DPrint("event:%s\n", gSendEvent[type].EventStr);
+	xml_event_list_t *tEventDataPt = getEvent(gSendEvent[type].EventStr);
+	nSize = tEventDataPt->size;
+#endif
     gSyParamList = (struct _ParameterValueStruct*)Malloc(soap, sizeof(struct _ParameterValueStruct));
     if (NULL != gSyParamList)
     {
@@ -421,7 +429,7 @@ LOCAL int MallocParaList(struct soap* soap,
         memset(gSyParamList->__ptrParameterValueStruct, 0x00, length);
     }
     gSyParamList->__size = nSize;
-
+#ifndef SY_TEST
     for (i = 0; i < nSize; i++)
     {
         gSyParamList->__ptrParameterValueStruct[i].Name = Strdup(soap, syInformParameters[i]);
@@ -508,6 +516,30 @@ LOCAL int MallocParaList(struct soap* soap,
             Strdup(soap, gSyLANStu.AddressingType);
     */
 #endif
+#else
+	for(i = 0; i < nSize; i++){
+		gSyParamList->__ptrParameterValueStruct[i].Name = Strdup(soap, tEventDataPt->paramName[i]);
+		
+		SyGetNodeType(tEventDataPt->paramName[i], tmpType, "string");
+        snprintf(tmpStr, sizeof(tmpStr), "%s:%s", "xsd", tmpType);        
+        gSyParamList->__ptrParameterValueStruct[i].Type = Strdup(soap, tmpStr);
+
+		char value[256] = {0};
+		xml_key_path_t tData;
+		if(getParamForNode(tEventDataPt->paramName[i], &tData)){
+			if(!GetValueToTM(tData.keyname, value, sizeof(value)))
+				SyGetNodeValue(tEventDataPt->paramName[i], value);
+		}
+		gSyParamList->__ptrParameterValueStruct[i].Value = Strdup(soap, value);
+		DPrint("name:%s,value:%s\n", tEventDataPt->paramName[i], value);
+
+		free(tEventDataPt->paramName[i]);
+	}
+
+	free(tEventDataPt->paramName);
+	free(tEventDataPt);
+	
+#endif
 
     if(flagFile1 != NULL)
     {
@@ -535,7 +567,7 @@ LOCAL int ValueChanged(struct soap* soap, void* handle)
 {
 
     MallocParaList(soap,
-                      SY_PARAM_VALUE_CHANGED,
+                      (int)handle,
                       SY_VALUE_CHANGE_INFORM_FLAG_0,
                       SY_VALUE_CHANGE_INFORM_FLAG_1,
                       SY_VALUE_CHANGE_INFORM_FLAG_2
@@ -545,30 +577,30 @@ LOCAL int ValueChanged(struct soap* soap, void* handle)
 
 LOCAL int Periodic(struct soap* soap, void* handle)
 {
-    MallocParaList(soap, SY_PARAM_PERIODIC, NULL, NULL, NULL);
+    MallocParaList(soap, (int)handle, NULL, NULL, NULL);
     return SY_SUCCESS;
 }
 LOCAL int LogMsgPeriod(struct soap* soap, void* handle)
 {
-    MallocParaList(soap, SY_PARAM_PERIODIC, SY_LOG_PERIODIC_INFORM_FLAG, NULL, NULL);
+    MallocParaList(soap, (int)handle, SY_LOG_PERIODIC_INFORM_FLAG, NULL, NULL);
     return SY_SUCCESS;
 }
 LOCAL int Diagnostics(struct soap* soap, void* handle)
 {
-    MallocParaList(soap, SY_PARAM_DIAGNOSTICS, NULL, NULL, NULL);
+    MallocParaList(soap, (int)handle, NULL, NULL, NULL);
     return SY_SUCCESS;
 }
 
 LOCAL int syErrorCode(struct soap* soap, void* handle)
 {
-    MallocParaList(soap, SY_PARAM_ERROR_CODE, SY_ERRORCODEENCODETMP_FLAG, NULL, NULL);
+    MallocParaList(soap, (int)handle, SY_ERRORCODEENCODETMP_FLAG, NULL, NULL);
     return SY_SUCCESS;
 }
 
 
 LOCAL int Inform(struct soap* soap, void* handle)
 {
-    MallocParaList(soap, SY_PARAM_INFORM, "./syInform1", "./syInform2", NULL);
+    MallocParaList(soap, (int)handle, "./syInform1", "./syInform2", NULL);
     return SY_SUCCESS;
 }
 
@@ -914,6 +946,9 @@ int SendInform(struct soap* soap, void* handle)
         sprintf(tmpUrl, "%s", gsyAcsCpeParamStru.URL);
     }
     DPrint("tmpUrl:%s\n", tmpUrl);
+	
+    CreateInform(soap, handle);
+    VPrint("Size of ParamList = %d\n", gSyParamList->__size);
 
 TryToSchedule:
 		
@@ -927,8 +962,6 @@ TryToSchedule:
         }
     }
 
-    CreateInform(soap, handle);
-    VPrint("Size of ParamList = %d\n", gSyParamList->__size);
     for (int i = 0; i<gSyParamList->__size; i++)
     {
         VPrint("%s -> %s", gSyParamList->__ptrParameterValueStruct[i].Name, gSyParamList->__ptrParameterValueStruct[i].Value);
@@ -1480,6 +1513,8 @@ LOCAL bool GetDeviceInfo()
     if (!GetValue("Device.DeviceInfo.ModelName", pTmpBuf, sizeOfBuf))
     {
         getprop("ro.product.model", pTmpBuf, "noDefine"); 
+		//SetValue("Device.DeviceInfo.ModelName", pTmpBuf);
+		
     }
     DPrint("model = %s\n", pTmpBuf);
     gSyDeviceInfoStu.ModelName = strdup(pTmpBuf);
@@ -1553,6 +1588,7 @@ LOCAL bool GetDeviceInfo()
     if (!GetValue("Device.DeviceInfo.HardwareVersion", pTmpBuf, sizeOfBuf))
     {
         getprop("ro.build.hardware.id", pTmpBuf, "noDefine");
+		//SetValue("Device.DeviceInfo.HardwareVersion", pTmpBuf);
     }
 
     gSyDeviceInfoStu.HardwareVersion = strdup(pTmpBuf);
@@ -1564,6 +1600,7 @@ LOCAL bool GetDeviceInfo()
     if (!GetValue("Device.DeviceInfo.SoftwareVersion", pTmpBuf, sizeOfBuf))
     {
         getprop("ro.build.version.release", pTmpBuf, "noDefine");
+		//SetValue("Device.DeviceInfo.SoftwareVersion", pTmpBuf);
     }
     gSyDeviceInfoStu.SoftwareVersion = strdup(pTmpBuf);
     DPrint("SoftwareVersion:%s\n", pTmpBuf);
@@ -1637,6 +1674,7 @@ LOCAL bool GetDeviceInfo()
     {
         sprintf(pTmpBuf, "%d", readUptime());
         gSyDeviceInfoStu.UpTime = strdup(pTmpBuf);
+		//SetValue("Device.DeviceInfo.UpTime", pTmpBuf);
     }
 
 //
@@ -1765,6 +1803,8 @@ LOCAL bool GetDeviceInfo()
         //SyGetMAC(0, pTmpBuf);
         /* ro.mac可能跟ifconfig获取到的不一样.很多时候ro.mac说了算 */
         getprop("ro.mac", pTmpBuf, "noDefine");
+		//SetValue("Device.LAN.MACAddress", pTmpBuf);
+		
     }
 
     if (NULL == pTmpBuf)
@@ -1800,6 +1840,8 @@ LOCAL bool GetDeviceInfo()
     if (!GetValue("Device.X_00E0FC.STBID", pTmpBuf, sizeOfBuf))
     {
         getprop("ro.serialno", pTmpBuf, "noDefine");
+		//SetValue("Device.X_00E0FC.STBID", pTmpBuf);
+		
     }
 
     if (NULL == pTmpBuf)
@@ -2514,6 +2556,7 @@ LOCAL void* ClientThread(void* data)
 
     gSyManagementServerStu.ConnectionRequestURL = strdup(tmpBuf);
     DPrint("ConnectionRequestURL:%s\n", tmpBuf);
+	SetValue("Device.ManagementServer.ConnectionRequestURL", tmpBuf);
 
 
     DPrint("IsAcsContacted:%d, SessionState:%d\n",
@@ -2897,6 +2940,22 @@ bool CwmpMain()
 {
     DO;
     int ret = 0;
+#ifdef 	SY_TEST
+	mxml_node_t *tEvenXmlRootPt = loadConfigXml("system/etc/eventParamList.xml", "data/data/com.android.tm/files/eventParamList.xml", FALSE);
+	DPrint("load xml result => %s.", tEvenXmlRootPt ? "success" : "failed");
+
+	mxml_node_t *tParamXmlRootPt = loadConfigXml("/system/etc/parameterList.xml", "data/data/com.android.tm/files/parameterListUse.xml", FALSE);
+	DPrint("load xml result => %s.", tParamXmlRootPt ? "success" : "failed");
+
+	if(!tEvenXmlRootPt || !tParamXmlRootPt){
+		//system("am broadcast -a loading.fail");
+		DPrint("load xml fail\n");
+		return false;
+	}
+	setEventRoot(tEvenXmlRootPt);
+	setParamRoot(tParamXmlRootPt);
+#endif	
+
     if (SY_FAILED == SyInitConfigXml()) {
         DPrint("Init Config Xml Failed\n");
         return false;

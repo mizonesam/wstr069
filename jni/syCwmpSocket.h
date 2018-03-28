@@ -197,5 +197,5 @@ void HandleConnectRequest();
 void HandleDownload(char *pos);
 void HandleUpload(char* pos);
 void HandleUtil(pthread_t *threadid, iFunction func, const char *key);
-
+bool GetValueToTM(const char* path, char* buffer, size_t sizeOfValue);
 #endif

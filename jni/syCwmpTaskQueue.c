@@ -282,7 +282,7 @@ void* RunThread(void * lParam){
 					//vector_free(g_vecEvent);
 					remove(SY_BOOT_FLAG);
 					//exit(1);
-					AddEvent(EVENT_INITIALIZE);
+					addEvent(EVENT_INITIALIZE);
 					break;
 				default:
 					break;

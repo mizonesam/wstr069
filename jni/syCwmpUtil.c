@@ -1904,7 +1904,7 @@ int SyPacketCapture(syPacketCaptureResult* pPacketCaptureResult)
 
 #if 1
     gSyBreakLoop = 0;
-    pthread_create(&tid, NULL, syPacketCaptureCountThread, NULL);
+    //pthread_create(&tid, NULL, syPacketCaptureCountThread, NULL);
     FILE *cmd_fp;
     char cmdBuf[256] = {0};
     char msgbug[1024] = {0};
@@ -1930,6 +1930,26 @@ int SyPacketCapture(syPacketCaptureResult* pPacketCaptureResult)
 	//capCmd.port = 0;
     strncpy(capCmd.szCmd, cmdBuf, strlen(cmdBuf));
 	SendToIptvSer(&capCmd, NULL, SY_IPTVSER_CMD_LOGCAT);
+
+	{
+		long tmpTime = 0L;
+	    long continueTime = 0L;
+
+	    tmpTime = time(NULL);
+	    continueTime = tmpTime - gSyStartCaptureTime;
+
+	    while (gSyCaptureDuration - continueTime >= 0)
+	    {
+	        tmpTime = time(NULL);
+	        continueTime = tmpTime - gSyStartCaptureTime;
+
+	        DPrint("continueTime:%ld, gSyCaptureDuration:%d\n", continueTime, gSyCaptureDuration);
+
+	        usleep(500 * 1000);
+	        if (1 == gSyBreakLoop)
+	            break;
+	    }
+	}
 #else
     szIfname = pcap_lookupdev(errBuf);
     if (szIfname)
@@ -3881,7 +3901,7 @@ int InitCmdSocket(const char *strIP, unsigned short port)
     peerAddr.sin_addr.s_addr = inet_addr(strIP);
     peerAddr.sin_port = htons(port);
 
-    struct timeval timeout = {0, 100*1000};
+    struct timeval timeout = {0, 1000*1000};
 
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));

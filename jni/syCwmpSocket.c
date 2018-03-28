@@ -35,6 +35,7 @@
 #include "cJSON.h"
 #include "cJSON_Utils.h"
 #include "syCwmpTaskQueue.h"
+#include "paramParse.h"
 
 #define AV_SERVER     "125.88.69.132"	//guangdong
 
@@ -98,9 +99,9 @@ typedef struct {
     int    cmd;
     int    attr;         //read/write
     char*  key;
-} xml_key_path_t;
+} data_key_path_t;
 
-static xml_key_path_t g_keyList[] = {
+static data_key_path_t g_keyList[] = {
 
     {CONNECT_TYPE,   				WRITE, "ConnectMode"},
     {DHCP_USER,      				WRITE, "DHCPUserName"},
@@ -1558,7 +1559,39 @@ void HandleIptvReq(struct sockmsg *pMsg)
 
     return;
 }
+bool GetValueToTM(const char* path, char* buffer, size_t sizeOfValue){
+	if(path == NULL)
+		return false;
+	if (!g_getData(path, buffer, sizeOfValue))
+    {
+        EPrint("Fault, failed to get data.\n");
+        return false;
+    }
+	DPrint("get buffer is %s\n", buffer);
 
+	if (0 == strcmp(path, "ConnectMode"))
+    {
+        if (0 == strcmp(buffer, "0")){
+            strcpy(buffer, "PPPoE");
+        }
+		else if (0 == strcmp(buffer, "1")){
+			strcpy(buffer, "DHCP");
+		}
+        else if (0 == strcmp(buffer, "2")){
+            strcpy(buffer, "Static");
+        }
+        else if (0 == strcmp(buffer, "3")){
+            strcpy(buffer, "IPoE");
+        }
+		else if (0 == strcmp(buffer, "4")){
+			strcpy(buffer, "Wifi");
+		}
+        else if (0 == strcmp(buffer, "-1")){
+            strcpy(buffer, "None");
+        }
+    }
+	return true;
+}
 bool getParamV(int cmd, char* buffer, size_t sizeOfValue)
 {
 	int  i;
@@ -1627,11 +1660,12 @@ bool getParamV(int cmd, char* buffer, size_t sizeOfValue)
     return true;
 }
 
-bool setParamV(struct sockmsg recvmsg)
-{	
+bool setParamV(const char* path, struct sockmsg recvmsg)
+{
+#if 0
     int  i, nRet = 0;
     int  logSwitchVal = 0;
-    int  length = sizeof(g_keyList)/sizeof(xml_key_path_t);
+    int  length = sizeof(g_keyList)/sizeof(data_key_path_t);
 	char path[128] =          {0};
     char connectType[2] =     {0};
 
@@ -1663,7 +1697,7 @@ bool setParamV(struct sockmsg recvmsg)
         E("Not found.\n");
         return false;
     }
-
+#endif
     switch(recvmsg.cmd){
     case CONNECT_TYPE: 
         if (strlen(recvmsg.msg) > 15){
@@ -1742,7 +1776,7 @@ bool setParamV(struct sockmsg recvmsg)
     case LOGOUTPUTTYPE:
     case SYSLOGCONTINUETIME:
     case SYSLOGTIMER:
-        for(i = 0; i < strlen(recvmsg.msg); i++){
+        for(int i = 0; i < strlen(recvmsg.msg); i++){
             if (!isdigit(recvmsg.msg[i])) {
                 E("Cmd:%d, Value non-number\n", recvmsg.cmd); 
                 return false;
@@ -1796,7 +1830,7 @@ bool SetValue(const char* path, char* value)
     memset(&sendMsg, 0, sizeof(sendMsg));
     DPrint("set <%s> to %s.\n", path, value);
     memset(&sendMsg, 0x00, sizeof(sendMsg));
-
+#if 0
     for(i = 0; i<gSyCmdStrListLen && gSyCmdStrList[i].cmd!=-1; i++)
     {
         if(!strcmp(gSyCmdStrList[i].cmdStr, path))
@@ -1805,16 +1839,36 @@ bool SetValue(const char* path, char* value)
 			break;
         }
         
-    }
+    } 
 
-    VPrint("index <%d>.\n", nCmd);
+	VPrint("index <%d>.\n", nCmd);
+	
+	 if (SY_WRITE_END != nCmd) {
+		 sendMsg.cmd = nCmd;
+		 sendMsg.len = strlen(strcpy(sendMsg.msg, value));
+		 
+		 ret = setParamV(sendMsg);
+	 }
+#else	
+    int  length = sizeof(g_keyList)/sizeof(data_key_path_t);
+	xml_key_path_t tData;
+	if(getParamForNode(path, &tData)){
+		for(i = 0; i < length; i++){
+			if(!strcmp(g_keyList[i].key, tData.keyname)){
+				nCmd = g_keyList[i].cmd;
+				break;
+			}
+		}
 
-    if (SY_WRITE_END != nCmd) {
-        sendMsg.cmd = nCmd;
-        sendMsg.len = strlen(strcpy(sendMsg.msg, value));
-		
-        ret = setParamV(sendMsg);
-    }
+		VPrint("index <%d>.\n", nCmd);
+		sendMsg.cmd = nCmd;
+		sendMsg.len = strlen(strcpy(sendMsg.msg, value));
+		ret = setParamV(tData.keyname, sendMsg);
+	}
+#endif
+
+	 
+
     DONE;
 
     return ret;
@@ -1843,7 +1897,12 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
 	strcpy(path1, path);
 	DPrint("call getvalue");
 	callLuaFunc(luaVM, "getvalue", "ppi>", path1, value, sizeOfValue);
-	
+#else
+#ifdef SY_TEST
+		xml_key_path_t tData;
+	if(getParamForNode(path, &tData)){
+		ret = GetValueToTM(tData.keyname, value, sizeOfValue);
+	}
 #else
     for(i = 0; i<gSyCmdStrListLen && gSyCmdStrList[i].cmd!=-1; i++)
     {
@@ -1863,15 +1922,17 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
         }
     }
 #endif
+#endif
 	char* tmpbuf = (char*)malloc(512);
 
 	memset(tmpbuf, 0x00, 512);
-	SyGetNodeValue(path, tmpbuf);
+	ret = SyGetNodeValue(path, tmpbuf);
 	DPrint("get %s is %s", path, tmpbuf);
 	strcpy(value, tmpbuf);
+	free(tmpbuf);
     DONE;
 
-    return true;
+    return ret;
 }
 
 int startLogcat(char* cmd)

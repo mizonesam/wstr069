@@ -54,6 +54,8 @@ LOCAL_SRC_FILES:= main.c \
     cJSON.c \
     cJSON_Utils.c \
     sylualib.c \
+    eventParse.c \
+    paramParse.c \
     $(WSNAME)Log.c \
     $(WSNAME)LogAndPcap.c \
     $(WSNAME)Server.c \
@@ -66,6 +68,7 @@ LOCAL_SRC_FILES:= main.c \
     $(WSNAME)Crypto.c \
 	$(WSNAME)TaskQueue.c \
     thirdLib/xml/$(WSNAME)Xml.c \
+	thirdLib/xml/cwmpXml.c \
     NAT/syNATClient.c \
     NAT/syNATStun.c \
     NAT/syNATUdp.c \
