@@ -1,0 +1,46 @@
+<paramList>
+	<province>GDDX</province>
+	<param>
+		<node type="string" nodename="Device.LAN.AddressingType" attr="1" keyname="ConnectMode" />
+		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.DHCPID" attr="1" keyname="DHCPUserName" />
+		<node type="string" nodename="Device.DeviceSummary" attr="1" keyname="DeviceSummary" />
+		<node type="string" nodename="Device.DeviceInfo.ModelName" attr="1" keyname="ModelName" />
+		<node type="string" nodename="Device.DeviceInfo.Description" attr="1" keyname="Description" />
+		<node type="string" nodename="Device.DeviceInfo.UpTime" attr="1" keyname="UpTime" />
+		<node type="string" nodename="Device.DeviceInfo.FirstUseDate" attr="1" keyname="FirstUseDate" />
+		<node type="string" nodename="Device.DeviceInfo.HardwareVersion" attr="1" keyname="HardwareVersion" />
+		<node type="string" nodename="Device.DeviceInfo.SoftwareVersion" attr="1" keyname="SoftwareVersion" />
+		<node type="string" nodename="Device.DeviceInfo.AdditionalHardwareVersion" attr="1" keyname="AdditionalHardwareVersion" />
+		<node type="string" nodename="Device.DeviceInfo.AdditionalSoftwareVersion" attr="1" keyname="AdditionalSoftwareVersion" />
+		<node type="string" nodename="Device.ManagementServer.ConnectionRequestURL" attr="1" keyname="ConnectionRequestURL" />
+		<node type="string" nodename="Device.ManagementServer.ParameterKey" attr="1" keyname="ParameterKey" />
+		<node type="string" nodename="Device.LAN.IPAddress" attr="1" keyname="IPAddress" />
+		<node type="string" nodename="Device.LAN.MACAddress" attr="1" keyname="MACAddress" />
+		<node type="string" nodename="Device.X_00E0FC.STBID" attr="1" keyname="STBID" />
+		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.UserID" attr="1" keyname="IPTVaccount" />
+		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.AuthURL" attr="1" keyname="IPTVauthURL" />
+		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.PPPoEID" attr="1" keyname="PPPoEID" />
+		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.IsEncryptMark" attr="1" keyname="IsEncryptMark" />
+		<node type="string" nodename="Device.X_00E0FC.RemoteControlEnable" attr="1" keyname="RemoteControlEnable" />
+		<node type="string" nodename="Device.LAN.SubnetMask" attr="1" keyname="NetMask" />
+		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.DHCPPassword" attr="1" keyname="DHCPPassword" />
+		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.PPPoEPassword" attr="1" keyname="PPPOEPassword" />
+		<node type="string" nodename="Device.LAN.DefaultGateway" attr="1" keyname="DefaultGate" />
+		<node type="string" nodename="Device.LAN.DNSServers" attr="1" keyname="DNS" />
+		<node type="string" nodename="Device.LAN.DNSServers2" attr="1" keyname="SecondNDS" />
+		<node type="string" nodename="Device.Time.LocalTimeZone" attr="1" keyname="TimeZone" />
+		<node type="string" nodename="Device.Time.NTPServer1" attr="1" keyname="ServerNTPUrl" />
+		<node type="string" nodename="Device.Time.NTPServer2" attr="1" keyname="ServerNTPBackupUrl" />
+		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.UserIDPassword" attr="1" keyname="IPTVpassword" />
+		<node type="string" nodename="Device.UserInterface.CurrentLanguage" attr="1" keyname="ChooseLanguage" />
+		<node type="string" nodename="Device.ManagementServer.URL" attr="1" keyname="config_WebmasterUrl" />
+		<node type="string" nodename="Device.X_00E0FC.LogParaConfiguration.LogType" attr="1" keyname="LogType" />
+		<node type="string" nodename="Device.X_00E0FC.LogParaConfiguration.LogLevel" attr="1" keyname="LogLevel" />
+		<node type="string" nodename="Device.X_00E0FC.LogParaConfiguration.LogOutPutType" attr="1" keyname="LogOutPutType" />
+		<node type="string" nodename="Device.X_00E0FC.LogParaConfiguration.SyslogServer" attr="1" keyname="SyslogServer" />
+		<node type="string" nodename="Device.X_00E0FC.LogParaConfiguration.SyslogStartTime" attr="1" keyname="SyslogStartTime" />
+		<node type="string" nodename="Device.X_00E0FC.LogParaConfiguration.SyslogContinueTime" attr="1" keyname="SyslogContinueTime" />
+		<node type="string" nodename="Device.X_00E0FC.LogParaConfiguration.LogTimer" attr="1" keyname="LogTimer" />
+		<node type="string" nodename="Device.X_00E0FC.LogParaConfiguration.LogFtpServer" attr="1" keyname="LogFtpServer" />
+	</param>
+</paramList>
