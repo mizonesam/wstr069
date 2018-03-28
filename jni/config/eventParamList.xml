@@ -1,0 +1,113 @@
+<eventParam>
+	<province>GDDX</province>
+	<event code="0 BOOTSTRAP">
+		<list>
+			<node value="Device.DeviceSummary"/>
+			<node value="Device.DeviceInfo.ModelName"/>
+			<node value="Device.DeviceInfo.Description"/>
+			<node value="Device.DeviceInfo.UpTime"/>
+			<node value="Device.DeviceInfo.FirstUseDate"/>
+			<node value="Device.DeviceInfo.HardwareVersion"/>
+			<node value="Device.DeviceInfo.SoftwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalHardwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalSoftwareVersion"/>
+			<node value="Device.ManagementServer.ConnectionRequestURL"/>
+			<node value="Device.ManagementServer.ParameterKey"/>
+			<node value="Device.LAN.IPAddress"/>
+			<node value="Device.LAN.MACAddress"/>
+			<node value="Device.X_00E0FC.STBID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.UserID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.AuthURL"/>
+			<node value="Device.X_00E0FC.ServiceInfo.PPPoEID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.IsEncryptMark"/>
+		</list>
+	</event>
+	<event code="1 BOOT">
+		<list>
+			<node value="Device.DeviceSummary"/>
+			<node value="Device.DeviceInfo.ModelName"/>
+			<node value="Device.DeviceInfo.Description"/>
+			<node value="Device.DeviceInfo.UpTime"/>
+			<node value="Device.DeviceInfo.FirstUseDate"/>
+			<node value="Device.DeviceInfo.HardwareVersion"/>
+			<node value="Device.DeviceInfo.SoftwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalHardwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalSoftwareVersion"/>
+			<node value="Device.ManagementServer.ConnectionRequestURL"/>
+			<node value="Device.ManagementServer.ParameterKey"/>
+			<node value="Device.LAN.IPAddress"/>
+			<node value="Device.LAN.MACAddress"/>
+			<node value="Device.X_00E0FC.STBID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.UserID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.AuthURL"/>
+			<node value="Device.X_00E0FC.ServiceInfo.PPPoEID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.IsEncryptMark"/>
+		</list>
+	</event>
+		<event code="4 VALUE CHANGE">
+		<list>
+			<node value="Device.DeviceSummary"/>
+			<node value="Device.DeviceInfo.ModelName"/>
+			<node value="Device.DeviceInfo.Description"/>
+			<node value="Device.DeviceInfo.UpTime"/>
+			<node value="Device.DeviceInfo.FirstUseDate"/>
+			<node value="Device.DeviceInfo.HardwareVersion"/>
+			<node value="Device.DeviceInfo.SoftwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalHardwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalSoftwareVersion"/>
+			<node value="Device.ManagementServer.ConnectionRequestURL"/>
+			<node value="Device.ManagementServer.ParameterKey"/>
+			<node value="Device.LAN.IPAddress"/>
+			<node value="Device.LAN.MACAddress"/>
+			<node value="Device.X_00E0FC.STBID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.UserID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.AuthURL"/>
+			<node value="Device.X_00E0FC.ServiceInfo.PPPoEID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.IsEncryptMark"/>
+		</list>
+	</event>
+		<event code="6 CONNECTION REQUEST">
+		<list>
+			<node value="Device.DeviceSummary"/>
+			<node value="Device.DeviceInfo.ModelName"/>
+			<node value="Device.DeviceInfo.Description"/>
+			<node value="Device.DeviceInfo.UpTime"/>
+			<node value="Device.DeviceInfo.FirstUseDate"/>
+			<node value="Device.DeviceInfo.HardwareVersion"/>
+			<node value="Device.DeviceInfo.SoftwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalHardwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalSoftwareVersion"/>
+			<node value="Device.ManagementServer.ConnectionRequestURL"/>
+			<node value="Device.ManagementServer.ParameterKey"/>
+			<node value="Device.LAN.IPAddress"/>
+			<node value="Device.LAN.MACAddress"/>
+			<node value="Device.X_00E0FC.STBID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.UserID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.AuthURL"/>
+			<node value="Device.X_00E0FC.ServiceInfo.PPPoEID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.IsEncryptMark"/>
+		</list>
+	</event>
+		<event code="8 DIAGNOSTICS COMPLETE">
+		<list>
+			<node value="Device.DeviceSummary"/>
+			<node value="Device.DeviceInfo.ModelName"/>
+			<node value="Device.DeviceInfo.Description"/>
+			<node value="Device.DeviceInfo.UpTime"/>
+			<node value="Device.DeviceInfo.FirstUseDate"/>
+			<node value="Device.DeviceInfo.HardwareVersion"/>
+			<node value="Device.DeviceInfo.SoftwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalHardwareVersion"/>
+			<node value="Device.DeviceInfo.AdditionalSoftwareVersion"/>
+			<node value="Device.ManagementServer.ConnectionRequestURL"/>
+			<node value="Device.ManagementServer.ParameterKey"/>
+			<node value="Device.LAN.IPAddress"/>
+			<node value="Device.LAN.MACAddress"/>
+			<node value="Device.X_00E0FC.STBID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.UserID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.AuthURL"/>
+			<node value="Device.X_00E0FC.ServiceInfo.PPPoEID"/>
+			<node value="Device.X_00E0FC.ServiceInfo.IsEncryptMark"/>
+		</list>
+	</event>
+</eventParam>
