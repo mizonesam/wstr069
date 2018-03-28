@@ -82,6 +82,11 @@ typedef void* (*iFunction)(void *);
 
 #define SY_COMMON_XML               SY_ROOT_PATH"syXml.xml"
 
+#define SY_EVENT_XML_PATH			"/system/etc/eventParamList.xml"
+#define SY_PARAM_XML_PATH			"/system/etc/parameterList.xml"
+#define SY_EVENT_XML_PATH_BAK		SY_XML_ROOT_PATH"com.android.tm/files/eventParamList.xml"
+#define SY_PARAM_XML_PATH_BAK		SY_XML_ROOT_PATH"com.android.tm/files/parameterList.xml"
+
 #define SY_ETH0                     "eth0"
 #define SY_WLAN0                    "wlan0"
 
