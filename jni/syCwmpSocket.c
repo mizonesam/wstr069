@@ -1915,7 +1915,11 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
         }
     }
 #endif
-	callLuaFunc(luaVM, "getvalue", "ppi>", path1, value, sizeOfValue);
+
+#ifdef SUPPORT_LUA
+	callLuaFunc(luaVM, "getvalue", "ppi>", path, value, sizeOfValue);
+#endif
+
     DONE;
 
     return ret;

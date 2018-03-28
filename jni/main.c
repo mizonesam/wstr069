@@ -266,7 +266,7 @@ void DPrintL(char* log){
 
 int myPanic(lua_State* L)
 {
-	DPrint("Lua Function Error info is: %s", lua_tostring(luaVM, -1));
+	DPrint("Lua Function Error info is: %s", lua_tostring(L, -1));
 	return 1;
 }
 const char* getVer()
