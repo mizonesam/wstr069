@@ -75,8 +75,11 @@ mxml_node_t* loadConfigXml(const char* pSrcXmlFile, const char* pDstXmlFile, BOO
 		break;
 	}
 	if (i == 3) {
-		copyFile(pSrcXmlFile, pDstXmlFile);
-		chmodFile(pDstXmlFile, 666);
+		int re;
+		re = copyFile(pSrcXmlFile, pDstXmlFile);
+		DPrint("copy re is %d", re);
+		re = chmodFile(pDstXmlFile, 666);
+		DPrint("chmod re is %d", re);
 		result = loadXml(&tXmlPt, pDstXmlFile);
 	}
     return tXmlPt;

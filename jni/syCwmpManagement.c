@@ -441,15 +441,6 @@ LOCAL int MallocParaList(struct soap* soap,
         //DPrint("type:%s\n", gSyParamList->__ptrParameterValueStruct[i].Type);
     }
 
-#ifdef SUPPORT_LUA
-	DPrint("Call updateParam");
-	callLuaFunc(luaVM, "updateParam", "iippppp>", nSize, 0, gSyParamList, &gSyDeviceInfoStu, &gSyManagementServerStu, &gSyLANStu, &gSyServiceInfoStu);
-	DPrint("call updateParam return ");
-	for (int i = 0; i<gSyParamList->__size; i++)
-    {
-        VPrint("%s -> %s", gSyParamList->__ptrParameterValueStruct[i].Name, gSyParamList->__ptrParameterValueStruct[i].Value);
-    }
-#else
     DPrint("gSyDeviceInfoStu.DeviceSummary:%s\n", gSyDeviceInfoStu.DeviceSummary);
     gSyParamList->__ptrParameterValueStruct[SY_INFORM_DEVICE_SUMMARY].Value =
         Strdup(soap, gSyDeviceInfoStu.DeviceSummary);
@@ -515,7 +506,6 @@ LOCAL int MallocParaList(struct soap* soap,
     gSyParamList->__ptrParameterValueStruct[SY_INFORM_ADDRESSINGTYPE].Value =
             Strdup(soap, gSyLANStu.AddressingType);
     */
-#endif
 #else
 	for(i = 0; i < nSize; i++){
 		gSyParamList->__ptrParameterValueStruct[i].Name = Strdup(soap, tEventDataPt->paramName[i]);
@@ -539,6 +529,9 @@ LOCAL int MallocParaList(struct soap* soap,
 	free(tEventDataPt->paramName);
 	free(tEventDataPt);
 	
+#endif
+#ifdef SUPPORT_LUA
+			callLuaFunc(luaVM, "updateParam", "iippppp>", nSize, 0, gSyParamList, &gSyDeviceInfoStu, &gSyManagementServerStu, &gSyLANStu, &gSyServiceInfoStu);
 #endif
 
     if(flagFile1 != NULL)
@@ -628,9 +621,7 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
     DPrint("event type:%d\n", nType);
 
     gSyEvent = (struct _EventStruct*)malloc(sizeof(struct _EventStruct));
-#ifdef SUPPORT_LUA
-	callLuaFunc(luaVM, "updateEvent", "ipppp>", nType, gSyEvent, &gSyLANStu, &gSyManagementServerStu, &gsyAcsCpeParamStru);
-#else	
+	
     eventNum = 1;
     if (SY_EVENT_BOOT == nType)
     {
@@ -777,6 +768,8 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
             soap_strdup(soap, gSendEvent[nType].CommandKey);
     }
     gSyEvent->__size = eventNum;
+#ifdef SUPPORT_LUA
+	callLuaFunc(luaVM, "updateEvent", "ipppp>", nType, gSyEvent, &gSyLANStu, &gSyManagementServerStu, &gsyAcsCpeParamStru);
 #endif
     DONE;
 

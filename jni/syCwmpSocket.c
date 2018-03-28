@@ -1918,6 +1918,7 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
 
 #ifdef SUPPORT_LUA
 	callLuaFunc(luaVM, "getvalue", "ppi>", path, value, sizeOfValue);
+	DPrint("after call lua string is %s", value);
 #endif
 
     DONE;
