@@ -28,8 +28,8 @@ BOOL getParamForNode(const char *pNodeNamePt, xml_key_path_t *pDataPt) {
 		memset(pDataPt, 0x00, sizeof(xml_key_path_t));
 		strncpy(pDataPt->tag, tParamNodePt->value.element.name, TAG_MSG_LEN);
 		getAttrValue(tParamNodePt, "type", pDataPt->type, TYPE_MSG_LEN);
-		strncpy(pDataPt->nodename, pNodeNamePt, NODE_MSG_LEN);
-		getAttrValue(tParamNodePt, "attr", pDataPt->attr, ATTR_MSG_LEN);
+		strncpy(pDataPt->nodename, pNodeNamePt, NODE_MSG_LEN);		
+		pDataPt->attr = getAttrIntValue(tParamNodePt, "attr");		
 		getAttrValue(tParamNodePt, "keyname", pDataPt->keyname, KEY_MSG_LEN);
 		tResult = TRUE;
 	}
@@ -53,7 +53,7 @@ BOOL getParamForKey(const char *pKeyPt, xml_key_path_t *pDataPt) {
 		strncpy(pDataPt->tag, tParamNodePt->value.element.name, TAG_MSG_LEN);
 		getAttrValue(tParamNodePt, "type", pDataPt->type, TYPE_MSG_LEN);
 		getAttrValue(tParamNodePt, "nodename", pDataPt->nodename, NODE_MSG_LEN);
-		getAttrValue(tParamNodePt, "attr", pDataPt->attr, ATTR_MSG_LEN);
+		pDataPt->attr = getAttrIntValue(tParamNodePt, "attr");
 		strncpy(pDataPt->keyname, pKeyPt, KEY_MSG_LEN);
 		tResult = TRUE;
 	}
@@ -63,6 +63,6 @@ BOOL getParamForKey(const char *pKeyPt, xml_key_path_t *pDataPt) {
 
 void showNode(xml_key_path_t *pNodePt) {
 
-	DPrint("tag:%s, type:%s, nodename:%s, attr:%s, keyname:%s.", pNodePt->tag, pNodePt->type, pNodePt->nodename, pNodePt->attr, pNodePt->keyname);
+	DPrint("tag:%s, type:%s, nodename:%s, attr:%d, keyname:%s.", pNodePt->tag, pNodePt->type, pNodePt->nodename, pNodePt->attr, pNodePt->keyname);
 }
 

@@ -98,6 +98,19 @@ BOOL getAttrValue(mxml_node_t *pNodePt, char *pAttrName, char *pValue, int pLen)
     strncpy(pValue, tmpStr, pLen);
 	return TRUE;
 }
+int getAttrIntValue(mxml_node_t *pNodePt, char *pAttrName){
+	if (NULL == pNodePt) {
+		return -1;
+	}
+	const char* tmpStr = mxmlElementGetAttr(pNodePt, pAttrName);
+    if (NULL == tmpStr) {
+		DPrint("tempStr is NULL!");
+        return -1;
+    }
+	int attr = atoi(tmpStr);
+	return attr;
+}
+
 
 BOOL setAttrValue(mxml_node_t *pNode, char *pValue) {
 	

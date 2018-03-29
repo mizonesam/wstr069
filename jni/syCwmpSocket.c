@@ -1596,7 +1596,7 @@ bool getParamV(int cmd, char* buffer, size_t sizeOfValue)
 {
 	int  i;
     int  nRet = 0;
-    int  length = sizeof(g_keyList)/sizeof(xml_key_path_t);
+    int  length = sizeof(g_keyList)/sizeof(data_key_path_t);
 	char path[128] = {0};
 	
     if(-1 == cmd)
@@ -1660,7 +1660,7 @@ bool getParamV(int cmd, char* buffer, size_t sizeOfValue)
     return true;
 }
 
-bool setParamV(const char* path, struct sockmsg recvmsg)
+bool setParamV(struct sockmsg recvmsg)
 {
 #if 0
     int  i, nRet = 0;
@@ -1816,7 +1816,7 @@ bool setParamV(const char* path, struct sockmsg recvmsg)
     default:
         break;
     }
-    return g_setData(path, recvmsg.msg);
+    return g_setData(recvmsg.user, recvmsg.msg);
 }
 
 
@@ -1853,6 +1853,8 @@ bool SetValue(const char* path, char* value)
     int  length = sizeof(g_keyList)/sizeof(data_key_path_t);
 	xml_key_path_t tData;
 	if(getParamForNode(path, &tData)){
+		if(0 == tData.attr)
+			return false;
 		for(i = 0; i < length; i++){
 			if(!strcmp(g_keyList[i].key, tData.keyname)){
 				nCmd = g_keyList[i].cmd;
@@ -1863,7 +1865,8 @@ bool SetValue(const char* path, char* value)
 		VPrint("index <%d>.\n", nCmd);
 		sendMsg.cmd = nCmd;
 		sendMsg.len = strlen(strcpy(sendMsg.msg, value));
-		ret = setParamV(tData.keyname, sendMsg);
+		strcpy(sendMsg.user, tData.keyname);
+		ret = setParamV(sendMsg);
 	}
 #endif
 
@@ -1892,9 +1895,14 @@ bool GetValue(const char* path, char* value, size_t sizeOfValue)
     memset(&sendMsg, 0x00, sizeof(sendMsg));
 
 #ifdef SY_TEST
-		xml_key_path_t tData;
+	xml_key_path_t tData;
 	if(getParamForNode(path, &tData)){
-		ret = GetValueToTM(tData.keyname, value, sizeOfValue);
+		//showNode(&tData);
+		if(0 == tData.attr)
+			getprop(tData.keyname, value, "noDefine");
+		else{
+			ret = GetValueToTM(tData.keyname, value, sizeOfValue);
+		}
 	}
 #else
     for(i = 0; i<gSyCmdStrListLen && gSyCmdStrList[i].cmd!=-1; i++)
