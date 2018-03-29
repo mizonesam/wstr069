@@ -260,10 +260,12 @@ bool NotifyToJava(int key, char* pszValue)
 	return true;
 }
 
+/*提供给Lua调用的日志打印函数*/
 void DPrintL(char* log){
 	DPrint("%s", log);
 }
 
+/*Lua错误打印日志函数，当Lua有错误时会调用*/
 int myPanic(lua_State* L)
 {
 	DPrint("Lua Function Error info is: %s", lua_tostring(L, -1));
@@ -300,7 +302,6 @@ void* mainly(void* unless)
         return false;
     }
 #endif
-	
     if (!CwmpMain()) {
         EPrint("Fatal: CwmpMain occur error.\n");
         return NULL;

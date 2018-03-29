@@ -530,8 +530,9 @@ LOCAL int MallocParaList(struct soap* soap,
 	free(tEventDataPt);
 	
 #endif
+
 #ifdef SUPPORT_LUA
-			callLuaFunc(luaVM, "updateParam", "iippppp>", nSize, 0, gSyParamList, &gSyDeviceInfoStu, &gSyManagementServerStu, &gSyLANStu, &gSyServiceInfoStu);
+	callLuaFunc(luaVM, "updateParam", "p>", gSyParamList);
 #endif
 
     if(flagFile1 != NULL)
@@ -769,7 +770,9 @@ LOCAL void CreateInformEvt(struct soap* soap,  void* handle)
     }
     gSyEvent->__size = eventNum;
 #ifdef SUPPORT_LUA
+	DPrint("enter Lua");
 	callLuaFunc(luaVM, "updateEvent", "ipppp>", nType, gSyEvent, &gSyLANStu, &gSyManagementServerStu, &gsyAcsCpeParamStru);
+	DPrint("after lua event num is %d", gSyEvent->__size);
 #endif
     DONE;
 
@@ -954,7 +957,10 @@ TryToSchedule:
             gSendInfomResult = 2;
         }
     }
-
+	for(int i = 0; i<gSyEvent->__size; i++)
+   	{
+        VPrint("$eventCode:%s.$", gSyEvent->__ptrEventStruct[i].EventCode);
+	}
     for (int i = 0; i<gSyParamList->__size; i++)
     {
         VPrint("%s -> %s", gSyParamList->__ptrParameterValueStruct[i].Name, gSyParamList->__ptrParameterValueStruct[i].Value);
