@@ -4,19 +4,19 @@
 		<node type="string" nodename="Device.LAN.AddressingType" attr="1" keyname="ConnectMode" />
 		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.DHCPID" attr="1" keyname="DHCPUserName" />
 		<node type="string" nodename="Device.DeviceSummary" attr="1" keyname="DeviceSummary" />
-		<node type="string" nodename="Device.DeviceInfo.ModelName" attr="1" keyname="ModelName" />
+		<node type="string" nodename="Device.DeviceInfo.ModelName" attr="0" keyname="ro.product.model" />
 		<node type="string" nodename="Device.DeviceInfo.Description" attr="1" keyname="Description" />
 		<node type="string" nodename="Device.DeviceInfo.UpTime" attr="1" keyname="UpTime" />
 		<node type="string" nodename="Device.DeviceInfo.FirstUseDate" attr="1" keyname="FirstUseDate" />
-		<node type="string" nodename="Device.DeviceInfo.HardwareVersion" attr="1" keyname="HardwareVersion" />
-		<node type="string" nodename="Device.DeviceInfo.SoftwareVersion" attr="1" keyname="SoftwareVersion" />
+		<node type="string" nodename="Device.DeviceInfo.HardwareVersion" attr="0" keyname="ro.build.hardware.id" />
+		<node type="string" nodename="Device.DeviceInfo.SoftwareVersion" attr="0" keyname="ro.build.version.release" />
 		<node type="string" nodename="Device.DeviceInfo.AdditionalHardwareVersion" attr="1" keyname="AdditionalHardwareVersion" />
 		<node type="string" nodename="Device.DeviceInfo.AdditionalSoftwareVersion" attr="1" keyname="AdditionalSoftwareVersion" />
 		<node type="string" nodename="Device.ManagementServer.ConnectionRequestURL" attr="1" keyname="ConnectionRequestURL" />
 		<node type="string" nodename="Device.ManagementServer.ParameterKey" attr="1" keyname="ParameterKey" />
 		<node type="string" nodename="Device.LAN.IPAddress" attr="1" keyname="IPAddress" />
-		<node type="string" nodename="Device.LAN.MACAddress" attr="1" keyname="MACAddress" />
-		<node type="string" nodename="Device.X_00E0FC.STBID" attr="1" keyname="STBID" />
+		<node type="string" nodename="Device.LAN.MACAddress" attr="0" keyname="ro.mac" />
+		<node type="string" nodename="Device.X_00E0FC.STBID" attr="0" keyname="ro.serialno" />
 		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.UserID" attr="1" keyname="IPTVaccount" />
 		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.AuthURL" attr="1" keyname="IPTVauthURL" />
 		<node type="string" nodename="Device.X_00E0FC.ServiceInfo.PPPoEID" attr="1" keyname="PPPoEID" />

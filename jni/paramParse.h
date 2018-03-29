@@ -15,7 +15,7 @@ typedef struct xml_key_path_t {
 	char	tag[TAG_MSG_LEN];		//对应xml中参数表节点的标签
 	char 	type[TYPE_MSG_LEN];		//对应xml中参数表节点的type
 	char	nodename[NODE_MSG_LEN];	//对应xml中参数表节点的nodename
-	char 	attr[ATTR_MSG_LEN];		//对应xml中参数表节点的attr
+	int 	attr;					//对应xml中参数表节点的attr,0:从系统获取,只读 1:从数据中心获取,可读写
 	char 	keyname[KEY_MSG_LEN];	//对应xml中参数表节点的keyname
 } xml_key_path_t;
 

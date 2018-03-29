@@ -3979,7 +3979,7 @@ int AddRouteToEth(const char* pszHost)
     if (sockfd != -1)
     {
         ItvSrvMsg_Out sendMsg;
-        sendMsg.wCmd = 24;
+        sendMsg.wCmd = 4;
 		sendMsg.szMsg[250] = 0;
         strncpy(sendMsg.szMsg, strIP, sizeof(sendMsg.szMsg));
 		int ret = -1;

@@ -515,11 +515,11 @@ LOCAL int MallocParaList(struct soap* soap,
         gSyParamList->__ptrParameterValueStruct[i].Type = Strdup(soap, tmpStr);
 
 		char value[256] = {0};
-		xml_key_path_t tData;
-		if(getParamForNode(tEventDataPt->paramName[i], &tData)){
-			if(!GetValueToTM(tData.keyname, value, sizeof(value)))
-				SyGetNodeValue(tEventDataPt->paramName[i], value);
+		if(!strcmp(tEventDataPt->paramName[i], "Device.DeviceInfo.UpTime")){
+			sprintf(value, "%d", readUptime());
 		}
+		else
+			GetValue(tEventDataPt->paramName[i], value, sizeof(value));
 		gSyParamList->__ptrParameterValueStruct[i].Value = Strdup(soap, value);
 		DPrint("name:%s,value:%s\n", tEventDataPt->paramName[i], value);
 

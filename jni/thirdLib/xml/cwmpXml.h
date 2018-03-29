@@ -45,6 +45,14 @@ mxml_node_t* loadConfigXml(const char* pSrcXmlFile, const char* pDstXmlFile, BOO
 BOOL getAttrValue(mxml_node_t *pNodePt, char *pAttrName, char *pValue, int pLen);
 
 /*
+功能:获取属性值
+参数1:被获取属性的xml节点指针
+参数2:属性名称
+返回值:返回属性获取结果
+*/
+int getAttrIntValue(mxml_node_t *pNodePt, char *pAttrName);
+
+/*
 功能:设置节点属性
 输入参数:
 参数1:需要被设置属性的xml节点指针
